@@ -200,7 +200,7 @@ function Create-PlaceholderFiles {
         "project_actions.md"     = "TODO: Add project-specific onboarding actions here"
     }
     foreach ($filename in $placeholders.Keys) {
-        $filepath = Join-Path $TargetDir "agent_rules" $filename
+        $filepath = Join-Path (Join-Path $TargetDir "agent_rules") $filename
         if (-not (Test-Path $filepath)) {
             Set-Content -Path $filepath -Value $placeholders[$filename]
             if ($Update) {
