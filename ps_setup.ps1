@@ -15,7 +15,7 @@ Write-Host "[*] Fetching latest mem-lite templates..."
 git clone --depth 1 --quiet $RepoUrl $CloneDir
 
 $TemplateAgents = Join-Path $CloneDir "AGENTS.md"
-$TemplateCommands = Join-Path $CloneDir "agent_rules" "commands"
+$TemplateCommands = Join-Path (Join-Path $CloneDir "agent_rules") "commands"
 
 try {
 
@@ -105,7 +105,7 @@ function Copy-Commands {
     foreach ($srcFile in $srcFiles) {
         $content = Get-Content $srcFile.FullName -Raw
         $rendered = Render-Template $content
-        $dstFile = Join-Path $TargetDir "agent_rules" "commands" $srcFile.Name
+        $dstFile = Join-Path (Join-Path $TargetDir "agent_rules") "commands" | Join-Path -ChildPath $srcFile.Name
 
         if ($Update) {
             if (Test-Path $dstFile) {
@@ -125,7 +125,7 @@ function Copy-Commands {
 
     if ($Update) {
         # Remove commands that no longer exist in templates
-        $existingFiles = Get-ChildItem -Path (Join-Path $TargetDir "agent_rules" "commands") -Filter "*.md" -ErrorAction SilentlyContinue
+        $existingFiles = Get-ChildItem -Path (Join-Path (Join-Path $TargetDir "agent_rules") "commands") -Filter "*.md" -ErrorAction SilentlyContinue
         foreach ($existing in $existingFiles) {
             if (-not (Test-Path (Join-Path $TemplateCommands $existing.Name))) {
                 Remove-Item $existing.FullName
@@ -219,7 +219,7 @@ function Create-PlaceholderFiles {
 }
 
 function Flatten-Logs {
-    $logDir = Join-Path $TargetDir "agent_rules" "log"
+    $logDir = Join-Path (Join-Path $TargetDir "agent_rules") "log"
     if (-not (Test-Path $logDir)) { return }
 
     $subdirs = Get-ChildItem -Path $logDir -Directory -ErrorAction SilentlyContinue
@@ -246,7 +246,7 @@ function Flatten-Logs {
 
 if ($Update) {
     $agentsPath = Join-Path $TargetDir "AGENTS.md"
-    $commandsPath = Join-Path $TargetDir "agent_rules" "commands"
+    $commandsPath = Join-Path (Join-Path $TargetDir "agent_rules") "commands"
 
     if (-not (Test-Path $agentsPath) -or -not (Test-Path $commandsPath)) {
         Write-Host "[!] mem light is not initialized here. Run this script without -Update first."
@@ -285,7 +285,7 @@ if ($Update) {
     }
 } else {
     $agentsPath = Join-Path $TargetDir "AGENTS.md"
-    $commandsPath = Join-Path $TargetDir "agent_rules" "commands"
+    $commandsPath = Join-Path (Join-Path $TargetDir "agent_rules") "commands"
 
     if ((Test-Path $agentsPath) -and (Test-Path $commandsPath)) {
         Write-Host "[!] mem light appears to already be initialized here."
