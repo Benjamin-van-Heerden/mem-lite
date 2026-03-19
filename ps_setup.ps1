@@ -11,7 +11,7 @@ $TargetDir = Get-Location
 $CoreEndTag = "</core_instructions>"
 
 # Clone the repo
-Write-Host "📥 Fetching latest mem-lite templates..."
+Write-Host "[*] Fetching latest mem-lite templates..."
 git clone --depth 1 --quiet $RepoUrl $CloneDir
 
 $TemplateAgents = Join-Path $CloneDir "AGENTS.md"
@@ -119,7 +119,7 @@ function Copy-Commands {
 
         Set-Content -Path $dstFile -Value $rendered -NoNewline
         if (-not $Update) {
-            Write-Host "  ✅ agent_rules/commands/$($srcFile.Name)"
+            Write-Host "  [+] agent_rules/commands/$($srcFile.Name)"
         }
     }
 
@@ -134,7 +134,7 @@ function Copy-Commands {
         }
 
         foreach ($change in $script:CommandChanges) {
-            Write-Host "  • $change"
+            Write-Host "  - $change"
         }
     }
 }
@@ -157,7 +157,7 @@ function Setup-AgentsMd {
         }
         if ($existing -ne $newAgents) {
             Set-Content -Path $agentsFile -Value $newAgents -NoNewline
-            Write-Host "  • Updated: AGENTS.md (core instructions)"
+            Write-Host "  - Updated: AGENTS.md (core instructions)"
             $script:AgentsChanged = $true
         }
     } else {
@@ -165,11 +165,11 @@ function Setup-AgentsMd {
         if (Test-Path $agentsFile) {
             $existingUserContent = Get-Content $agentsFile -Raw
             Write-Host ""
-            Write-Host "📄 Existing AGENTS.md found — appending your content after core instructions"
+            Write-Host "[*] Existing AGENTS.md found -- appending your content after core instructions"
             $rendered = "$rendered`n$existingUserContent"
         }
         Set-Content -Path $agentsFile -Value $rendered -NoNewline
-        Write-Host "  ✅ AGENTS.md"
+        Write-Host "  [+] AGENTS.md"
     }
 }
 
@@ -179,17 +179,17 @@ function Setup-ClaudeFile {
     if (-not (Test-Path $claudeFile)) {
         Copy-Item $agentsFile $claudeFile
         if ($Update) {
-            Write-Host "  • Created: CLAUDE.md (copy of AGENTS.md)"
+            Write-Host "  - Created: CLAUDE.md (copy of AGENTS.md)"
             $script:ClaudeChanged = $true
         } else {
-            Write-Host "  ✅ CLAUDE.md (copy of AGENTS.md)"
+            Write-Host "  [+] CLAUDE.md (copy of AGENTS.md)"
         }
     } elseif ($Update -and $script:AgentsChanged) {
         Copy-Item $agentsFile $claudeFile -Force
-        Write-Host "  • Updated: CLAUDE.md (re-copied from AGENTS.md)"
+        Write-Host "  - Updated: CLAUDE.md (re-copied from AGENTS.md)"
         $script:ClaudeChanged = $true
     } elseif (-not $Update) {
-        Write-Host "  ✅ CLAUDE.md already exists"
+        Write-Host "  [+] CLAUDE.md already exists"
     }
 }
 
@@ -206,14 +206,14 @@ function Create-PlaceholderFiles {
             if ($Update) {
                 $script:PlaceholderChanges += "Created: agent_rules/$filename"
             } else {
-                Write-Host "  ✅ agent_rules/$filename"
+                Write-Host "  [+] agent_rules/$filename"
             }
         }
     }
 
     if ($Update) {
         foreach ($change in $script:PlaceholderChanges) {
-            Write-Host "  • $change"
+            Write-Host "  - $change"
         }
     }
 }
@@ -229,15 +229,15 @@ function Flatten-Logs {
             $dest = Join-Path $logDir $logFile.Name
             if (-not (Test-Path $dest)) {
                 Move-Item $logFile.FullName $dest
-                Write-Host "  • Moved: agent_rules/log/$($subdir.Name)/$($logFile.Name) -> agent_rules/log/$($logFile.Name)"
+                Write-Host "  - Moved: agent_rules/log/$($subdir.Name)/$($logFile.Name) -> agent_rules/log/$($logFile.Name)"
             } else {
                 Remove-Item $logFile.FullName
-                Write-Host "  • Removed duplicate: agent_rules/log/$($subdir.Name)/$($logFile.Name)"
+                Write-Host "  - Removed duplicate: agent_rules/log/$($subdir.Name)/$($logFile.Name)"
             }
         }
         if ((Get-ChildItem $subdir.FullName | Measure-Object).Count -eq 0) {
             Remove-Item $subdir.FullName
-            Write-Host "  • Removed empty directory: agent_rules/log/$($subdir.Name)/"
+            Write-Host "  - Removed empty directory: agent_rules/log/$($subdir.Name)/"
         }
     }
 }
@@ -249,7 +249,7 @@ if ($Update) {
     $commandsPath = Join-Path $TargetDir "agent_rules" "commands"
 
     if (-not (Test-Path $agentsPath) -or -not (Test-Path $commandsPath)) {
-        Write-Host "❌ mem light is not initialized here. Run this script without -Update first."
+        Write-Host "[!] mem light is not initialized here. Run this script without -Update first."
         exit 1
     }
 
@@ -266,7 +266,7 @@ if ($Update) {
     Flatten-Logs
     Create-Directories
     if (Ensure-GitignoreEntry "agent_rules/tmp/") {
-        Write-Host "  • Updated: .gitignore (added agent_rules/tmp/)"
+        Write-Host "  - Updated: .gitignore (added agent_rules/tmp/)"
         $gitignoreChanged = $true
     }
     Create-PlaceholderFiles
@@ -278,17 +278,17 @@ if ($Update) {
         -not $script:AgentsChanged -and
         -not $script:ClaudeChanged -and
         -not $gitignoreChanged) {
-        Write-Host "✅ Mem light is up to date. No changes needed."
+        Write-Host "[OK] Mem light is up to date. No changes needed."
     } else {
         Write-Host ""
-        Write-Host "✅ Update complete."
+        Write-Host "[OK] Update complete."
     }
 } else {
     $agentsPath = Join-Path $TargetDir "AGENTS.md"
     $commandsPath = Join-Path $TargetDir "agent_rules" "commands"
 
     if ((Test-Path $agentsPath) -and (Test-Path $commandsPath)) {
-        Write-Host "⚠️  mem light appears to already be initialized here."
+        Write-Host "[!] mem light appears to already be initialized here."
         Write-Host "Use -Update to update existing files."
         exit 1
     }
@@ -301,7 +301,7 @@ if ($Update) {
     }
     if ($branches) {
         Write-Host ""
-        Write-Host "📋 Existing branches:"
+        Write-Host "Existing branches:"
         foreach ($branch in $branches) {
             Write-Host "  - $branch"
         }
@@ -314,9 +314,9 @@ if ($Update) {
         $createIt = Read-Host "Branch '$($script:DevBranch)' doesn't exist. Create it? [Y/n]"
         if ([string]::IsNullOrWhiteSpace($createIt) -or $createIt -match '^[Yy]$') {
             git switch -c $script:DevBranch
-            Write-Host "✅ Created and switched to branch '$($script:DevBranch)'"
+            Write-Host "[+] Created and switched to branch '$($script:DevBranch)'"
         } else {
-            Write-Host "❌ Cannot proceed without a development branch."
+            Write-Host "[!] Cannot proceed without a development branch."
             exit 1
         }
     }
@@ -325,7 +325,7 @@ if ($Update) {
     $script:TestBranch = Prompt-WithDefault "Which branch is your test/staging branch?" "test"
 
     Write-Host ""
-    Write-Host "📂 Creating agent_rules/ directory..."
+    Write-Host "[*] Creating agent_rules/ directory..."
     Create-Directories
     Copy-Commands
     Ensure-GitignoreEntry "agent_rules/tmp/" | Out-Null
@@ -334,9 +334,9 @@ if ($Update) {
     Setup-ClaudeFile
 
     Write-Host ""
-    Write-Host "✅ mem light initialized with dev branch: $($script:DevBranch)"
+    Write-Host "[OK] mem light initialized with dev branch: $($script:DevBranch)"
     Write-Host ""
-    Write-Host "💡 Start a session with: `"Get onboarded`" or `"Let's get to work`""
+    Write-Host "Start a session with: 'Get onboarded' or 'Let''s get to work'"
 }
 
 } finally {
