@@ -20,11 +20,13 @@ bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/
 
 ```powershell
 # Init
-$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; & $f; Remove-Item $f
+$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; powershell -ExecutionPolicy Bypass -File $f; Remove-Item $f
 
 # Update
-$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; & $f -Update; Remove-Item $f
+$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; powershell -ExecutionPolicy Bypass -File $f -Update; Remove-Item $f
 ```
+
+> **Note:** The `-ExecutionPolicy Bypass` flag is needed because Windows may block `.ps1` scripts by default. This only affects the setup script — it does not change your system's execution policy.
 
 The setup script will prompt you for your development, production, and test/staging branch names. It clones the latest templates, sets everything up, and cleans up after itself.
 
