@@ -324,6 +324,17 @@ if ($Update) {
     $script:ProdBranch = Prompt-WithDefault "Which branch is your production branch?" "main"
     $script:TestBranch = Prompt-WithDefault "Which branch is your test/staging branch?" "test"
 
+    # Create test branch off prod if needed
+    if ($branches -notcontains $script:TestBranch) {
+        $createTest = Read-Host "Branch '$($script:TestBranch)' doesn't exist. Create it off '$($script:ProdBranch)'? [Y/n]"
+        if ([string]::IsNullOrWhiteSpace($createTest) -or $createTest -match '^[Yy]$') {
+            git switch -c $script:TestBranch $script:ProdBranch
+            git push -u origin $script:TestBranch
+            git switch $script:DevBranch
+            Write-Host "[+] Created branch '$($script:TestBranch)' off '$($script:ProdBranch)' and pushed to remote"
+        }
+    }
+
     Write-Host ""
     Write-Host "[*] Creating agent_rules/ directory..."
     Create-Directories

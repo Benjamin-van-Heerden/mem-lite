@@ -334,6 +334,17 @@ else
     PROD_BRANCH=$(prompt_with_default "Which branch is your production branch?" "main")
     TEST_BRANCH=$(prompt_with_default "Which branch is your test/staging branch?" "test")
 
+    # Create test branch off prod if needed
+    if ! echo "$branches" | grep -qxF "$TEST_BRANCH"; then
+        read -rp "Branch '$TEST_BRANCH' doesn't exist. Create it off '$PROD_BRANCH'? [Y/n]: " create_test </dev/tty
+        if [[ "${create_test:-Y}" =~ ^[Yy]$ ]]; then
+            git switch -c "$TEST_BRANCH" "$PROD_BRANCH"
+            git push -u origin "$TEST_BRANCH"
+            git switch "$DEV_BRANCH"
+            echo "✅ Created branch '$TEST_BRANCH' off '$PROD_BRANCH' and pushed to remote"
+        fi
+    fi
+
     echo ""
     echo "📂 Creating agent_rules/ directory..."
     create_directories
