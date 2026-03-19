@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEMPLATE_AGENTS="$SCRIPT_DIR/AGENTS.md"
-TEMPLATE_COMMANDS="$SCRIPT_DIR/agent_rules/commands"
+REPO_URL="https://github.com/Benjamin-van-Heerden/mem-lite.git"
+CLONE_DIR="/tmp/mem-lite-setup-$$"
 TARGET_DIR="$(pwd)"
 CORE_END_TAG="</core_instructions>"
 
@@ -12,11 +11,23 @@ if [[ "${1:-}" == "--update" ]]; then
     UPDATE=true
 fi
 
+# Clone the repo
+echo "📥 Fetching latest mem-lite templates..."
+git clone --depth 1 --quiet "$REPO_URL" "$CLONE_DIR"
+
+TEMPLATE_AGENTS="$CLONE_DIR/AGENTS.md"
+TEMPLATE_COMMANDS="$CLONE_DIR/agent_rules/commands"
+
+cleanup() {
+    rm -rf "$CLONE_DIR"
+}
+trap cleanup EXIT
+
 prompt_with_default() {
     local prompt="$1"
     local default="$2"
     local result
-    read -rp "$prompt [$default]: " result
+    read -rp "$prompt [$default]: " result </dev/tty
     echo "${result:-$default}"
 }
 
@@ -310,7 +321,7 @@ else
 
     # Create dev branch if needed
     if ! echo "$branches" | grep -qxF "$DEV_BRANCH"; then
-        read -rp "Branch '$DEV_BRANCH' doesn't exist. Create it? [Y/n]: " create_it
+        read -rp "Branch '$DEV_BRANCH' doesn't exist. Create it? [Y/n]: " create_it </dev/tty
         if [[ "${create_it:-Y}" =~ ^[Yy]$ ]]; then
             git switch -c "$DEV_BRANCH"
             echo "✅ Created and switched to branch '$DEV_BRANCH'"

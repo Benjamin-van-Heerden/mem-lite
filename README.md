@@ -4,39 +4,29 @@ A lightweight, agent-driven development workflow using markdown files. Specs, ta
 
 No dependencies. No runtime. Just files and a setup script.
 
-## Quick Start
+## Setup
 
 ### macOS / Linux
 
 ```bash
-# Clone into your project
-cd my-project
-git clone --depth 1 https://github.com/Benjamin-van-Heerden/mem-lite.git
-rm -rf mem-lite/.git
+# Init
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/bash_setup.sh)
 
-# Run setup
-mem-lite/bash_setup.sh
-
-# Clean up the clone
-rm -rf mem-lite
+# Update
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/bash_setup.sh) --update
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-# Clone into your project
-cd my-project
-git clone --depth 1 https://github.com/Benjamin-van-Heerden/mem-lite.git
-Remove-Item -Recurse -Force mem-lite\.git
+# Init
+$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; & $f; Remove-Item $f
 
-# Run setup
-mem-lite\ps_setup.ps1
-
-# Clean up the clone
-Remove-Item -Recurse -Force mem-lite
+# Update
+$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; & $f -Update; Remove-Item $f
 ```
 
-The setup script will prompt you for your development, production, and test/staging branch names.
+The setup script will prompt you for your development, production, and test/staging branch names. It clones the latest templates, sets everything up, and cleans up after itself.
 
 ## What Gets Created
 
@@ -59,36 +49,6 @@ my-project/
         project_description.md
         project_actions.md
 ```
-
-## Updating
-
-When new versions of the templates are released, re-clone and run with the update flag:
-
-### macOS / Linux
-
-```bash
-cd my-project
-git clone --depth 1 https://github.com/Benjamin-van-Heerden/mem-lite.git
-rm -rf mem-lite/.git
-mem-lite/bash_setup.sh --update
-rm -rf mem-lite
-```
-
-### Windows (PowerShell)
-
-```powershell
-cd my-project
-git clone --depth 1 https://github.com/Benjamin-van-Heerden/mem-lite.git
-Remove-Item -Recurse -Force mem-lite\.git
-mem-lite\ps_setup.ps1 -Update
-Remove-Item -Recurse -Force mem-lite
-```
-
-The update will:
-- Overwrite command files with the latest versions
-- Add new commands, remove deprecated ones
-- Update core instructions in AGENTS.md while preserving your custom content (everything after `</core_instructions>`)
-- Create any new directories added in newer versions
 
 ## Usage
 
@@ -120,6 +80,14 @@ This triggers `c_onboard`, which reads your project context — specs, tasks, me
 mem lite is a file-based system — no CLI tool, no database, no runtime. The `agent_rules/commands/` directory contains step-by-step instructions written in a pseudo-code format that AI agents (Claude, Cursor, Copilot, etc.) read and execute.
 
 All state is stored in markdown files within `agent_rules/`. Git is the persistence and version control layer.
+
+## Updating
+
+Running the setup script with `--update` (bash) or `-Update` (PowerShell) will:
+- Overwrite command files with the latest versions
+- Add new commands, remove deprecated ones
+- Update core instructions in AGENTS.md while preserving your custom content (everything after `</core_instructions>`)
+- Create any new directories added in newer versions
 
 ## License
 

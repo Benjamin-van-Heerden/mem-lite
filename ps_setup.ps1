@@ -5,11 +5,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$TemplateAgents = Join-Path $ScriptDir "AGENTS.md"
-$TemplateCommands = Join-Path $ScriptDir "agent_rules" "commands"
+$RepoUrl = "https://github.com/Benjamin-van-Heerden/mem-lite.git"
+$CloneDir = Join-Path $env:TEMP "mem-lite-setup-$PID"
 $TargetDir = Get-Location
 $CoreEndTag = "</core_instructions>"
+
+# Clone the repo
+Write-Host "📥 Fetching latest mem-lite templates..."
+git clone --depth 1 --quiet $RepoUrl $CloneDir
+
+$TemplateAgents = Join-Path $CloneDir "AGENTS.md"
+$TemplateCommands = Join-Path $CloneDir "agent_rules" "commands"
+
+try {
 
 function Prompt-WithDefault {
     param(
@@ -169,7 +177,6 @@ function Setup-ClaudeFile {
     $claudeFile = Join-Path $TargetDir "CLAUDE.md"
     $agentsFile = Join-Path $TargetDir "AGENTS.md"
     if (-not (Test-Path $claudeFile)) {
-        # On Windows, copy instead of symlink (symlinks require elevated permissions)
         Copy-Item $agentsFile $claudeFile
         if ($Update) {
             Write-Host "  • Created: CLAUDE.md (copy of AGENTS.md)"
@@ -178,7 +185,6 @@ function Setup-ClaudeFile {
             Write-Host "  ✅ CLAUDE.md (copy of AGENTS.md)"
         }
     } elseif ($Update -and $script:AgentsChanged) {
-        # AGENTS.md was updated — re-copy to keep CLAUDE.md in sync
         Copy-Item $agentsFile $claudeFile -Force
         Write-Host "  • Updated: CLAUDE.md (re-copied from AGENTS.md)"
         $script:ClaudeChanged = $true
@@ -331,4 +337,11 @@ if ($Update) {
     Write-Host "✅ mem light initialized with dev branch: $($script:DevBranch)"
     Write-Host ""
     Write-Host "💡 Start a session with: `"Get onboarded`" or `"Let's get to work`""
+}
+
+} finally {
+    # Clean up the cloned repo
+    if (Test-Path $CloneDir) {
+        Remove-Item -Recurse -Force $CloneDir
+    }
 }
