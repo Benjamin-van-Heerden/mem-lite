@@ -160,4 +160,6 @@ When we are working on a spec (which will not always be the case - sometimes we 
 ## Notes
 
 - When you are interrupted by the user with "Stop" or "No" or similar, you must **IMMEDIATELY** stop what you are doing, give a brief explanation of what you were busy with, and wait for further instructions. DO NOT continue working.
+
+UPDATE
 </core_instructions>
