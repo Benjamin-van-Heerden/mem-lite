@@ -80,6 +80,7 @@
   ```
 
   @tool@ Run `git add -A && git commit -m "spec: create {--spec_slug}"`
+  @tool@ Run `git push`
   @tool@ Run `git switch -c $dev_branch-{--spec_slug}`
   @tool@ Run `git push -u origin $dev_branch-{--spec_slug}`
 
@@ -91,8 +92,11 @@
 
 @else@
 
+  @tool@ Run `git add -A && git commit -m "spec: create {--spec_slug}"`
+  @tool@ Run `git push`
+
   @finally@ Notify the user:
-  - The spec has been created in `$dev_branch`
+  - The spec has been created and pushed to `$dev_branch`
   - We can continue working on the spec
 
 @end if@
