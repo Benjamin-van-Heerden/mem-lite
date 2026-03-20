@@ -206,14 +206,16 @@ setup_claude_symlink() {
 
 create_placeholder_files() {
     local changes=()
-    declare -A placeholders=(
-        ["project_description.md"]="TODO: Describe your project here"
-        ["project_actions.md"]="TODO: Add project-specific onboarding actions here"
-    )
-    for filename in "${!placeholders[@]}"; do
+
+    for pair in \
+        "project_description.md|TODO: Describe your project here" \
+        "project_actions.md|TODO: Add project-specific onboarding actions here"
+    do
+        local filename="${pair%%|*}"
+        local content="${pair#*|}"
         local filepath="$TARGET_DIR/agent_rules/$filename"
         if [[ ! -f "$filepath" ]]; then
-            echo "${placeholders[$filename]}" > "$filepath"
+            echo "$content" > "$filepath"
             if $UPDATE; then
                 changes+=("Created: agent_rules/$filename")
             else
