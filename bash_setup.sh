@@ -138,7 +138,7 @@ copy_commands() {
             fi
         done
 
-        for change in "${changes[@]}"; do
+        for change in ${changes[@]+"${changes[@]}"}; do
             echo "  • $change"
         done
     fi
@@ -249,7 +249,7 @@ create_placeholder_files() {
     done
 
     if $UPDATE; then
-        for change in "${changes[@]}"; do
+        for change in ${changes[@]+"${changes[@]}"}; do
             echo "  • $change"
         done
     fi
