@@ -185,22 +185,46 @@ ${existing_user_content}"
     fi
 }
 
-setup_claude_symlink() {
+setup_claude_file() {
     local claude_file="$TARGET_DIR/CLAUDE.md"
-    if [[ ! -e "$claude_file" ]]; then
-        ln -s "AGENTS.md" "$claude_file"
-        if $UPDATE; then
-            echo "  • Created: CLAUDE.md -> AGENTS.md (symlink)"
+    local agents_file="$TARGET_DIR/AGENTS.md"
+    local is_windows=false
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        is_windows=true
+    fi
+
+    if $is_windows; then
+        # Windows: copy instead of symlink
+        if [[ ! -e "$claude_file" ]]; then
+            cp "$agents_file" "$claude_file"
+            if $UPDATE; then
+                echo "  • Created: CLAUDE.md (copy of AGENTS.md)"
+                CLAUDE_CHANGED=true
+            else
+                echo "  ✅ CLAUDE.md (copy of AGENTS.md)"
+            fi
+        elif $UPDATE && [[ "$AGENTS_CHANGED" == true ]]; then
+            cp "$agents_file" "$claude_file"
+            echo "  • Updated: CLAUDE.md (re-copied from AGENTS.md)"
             CLAUDE_CHANGED=true
-        else
-            echo "  ✅ CLAUDE.md -> AGENTS.md (symlink)"
-        fi
-    elif [[ -L "$claude_file" ]]; then
-        if ! $UPDATE; then
-            echo "  ✅ CLAUDE.md symlink already exists"
         fi
     else
-        echo "  ⚠️  CLAUDE.md exists and is not a symlink — skipping"
+        # Unix: symlink
+        if [[ ! -e "$claude_file" ]]; then
+            ln -s "AGENTS.md" "$claude_file"
+            if $UPDATE; then
+                echo "  • Created: CLAUDE.md -> AGENTS.md (symlink)"
+                CLAUDE_CHANGED=true
+            else
+                echo "  ✅ CLAUDE.md -> AGENTS.md (symlink)"
+            fi
+        elif [[ -L "$claude_file" ]]; then
+            if ! $UPDATE; then
+                echo "  ✅ CLAUDE.md symlink already exists"
+            fi
+        else
+            echo "  ⚠️  CLAUDE.md exists and is not a symlink — skipping"
+        fi
     fi
 }
 
@@ -287,7 +311,7 @@ if $UPDATE; then
     fi
     create_placeholder_files
     setup_agents_md
-    setup_claude_symlink
+    setup_claude_file
 
     # Check if anything changed
     if [[ ${#COMMAND_CHANGES[@]} -eq 0 ]] && \
@@ -319,32 +343,32 @@ else
         echo ""
     fi
 
+    PROD_BRANCH=$(prompt_with_default "Which branch is your production branch?" "main")
+
+    # Validate prod branch exists
+    if ! echo "$branches" | grep -qxF "$PROD_BRANCH"; then
+        echo "❌ Branch '$PROD_BRANCH' does not exist. Cannot proceed without a production branch."
+        exit 1
+    fi
+
     DEV_BRANCH=$(prompt_with_default "Which branch is your development branch?" "dev")
+    TEST_BRANCH=$(prompt_with_default "Which branch is your test/staging branch?" "test")
 
     # Create dev branch if needed
     if ! echo "$branches" | grep -qxF "$DEV_BRANCH"; then
-        read -rp "Branch '$DEV_BRANCH' doesn't exist. Create it? [Y/n]: " create_it </dev/tty
-        if [[ "${create_it:-Y}" =~ ^[Yy]$ ]]; then
-            git switch -c "$DEV_BRANCH"
-            echo "✅ Created and switched to branch '$DEV_BRANCH'"
-        else
-            echo "❌ Cannot proceed without a development branch."
-            exit 1
-        fi
+        git switch -c "$DEV_BRANCH" "$PROD_BRANCH"
+        git push -u origin "$DEV_BRANCH"
+        echo "✅ Created branch '$DEV_BRANCH' off '$PROD_BRANCH' and pushed to remote"
+    else
+        git switch "$DEV_BRANCH"
     fi
-
-    PROD_BRANCH=$(prompt_with_default "Which branch is your production branch?" "main")
-    TEST_BRANCH=$(prompt_with_default "Which branch is your test/staging branch?" "test")
 
     # Create test branch off prod if needed
     if ! echo "$branches" | grep -qxF "$TEST_BRANCH"; then
-        read -rp "Branch '$TEST_BRANCH' doesn't exist. Create it off '$PROD_BRANCH'? [Y/n]: " create_test </dev/tty
-        if [[ "${create_test:-Y}" =~ ^[Yy]$ ]]; then
-            git switch -c "$TEST_BRANCH" "$PROD_BRANCH"
-            git push -u origin "$TEST_BRANCH"
-            git switch "$DEV_BRANCH"
-            echo "✅ Created branch '$TEST_BRANCH' off '$PROD_BRANCH' and pushed to remote"
-        fi
+        git switch -c "$TEST_BRANCH" "$PROD_BRANCH"
+        git push -u origin "$TEST_BRANCH"
+        git switch "$DEV_BRANCH"
+        echo "✅ Created branch '$TEST_BRANCH' off '$PROD_BRANCH' and pushed to remote"
     fi
 
     echo ""
@@ -354,7 +378,7 @@ else
     ensure_gitignore_entry "agent_rules/tmp/" || true
     create_placeholder_files
     setup_agents_md
-    setup_claude_symlink
+    setup_claude_file
 
     echo ""
     echo "✅ mem light initialized with dev branch: $DEV_BRANCH"

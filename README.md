@@ -4,6 +4,10 @@ A lightweight, agent-driven development workflow using markdown files. Specs, ta
 
 No dependencies. No runtime. Just files and a setup script.
 
+## Prerequisites
+
+- **Git** must be installed (provides `bash` on all platforms including Windows)
+
 ## Setup
 
 ### macOS / Linux
@@ -16,26 +20,28 @@ bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/
 bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/bash_setup.sh) --update
 ```
 
-### Windows (PowerShell)
+### Windows
 
-```powershell
+Run from **Git Bash** (installed with Git for Windows):
+
+```bash
 # Init
-$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; powershell -ExecutionPolicy Bypass -File $f; Remove-Item $f
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/bash_setup.sh)
 
 # Update
-$f = "$env:TEMP\ps_setup.ps1"; Invoke-WebRequest -Uri https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/ps_setup.ps1 -OutFile $f; powershell -ExecutionPolicy Bypass -File $f -Update; Remove-Item $f
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/bash_setup.sh) --update
 ```
 
-> **Note:** The `-ExecutionPolicy Bypass` flag is needed because Windows may block `.ps1` scripts by default. This only affects the setup script — it does not change your system's execution policy.
+> **Note:** On Windows, CLAUDE.md is created as a copy of AGENTS.md (not a symlink). Running `--update` will keep it in sync.
 
-The setup script will prompt you for your development, production, and test/staging branch names. It clones the latest templates, sets everything up, and cleans up after itself.
+The setup script will prompt you for your branch names, create any missing branches, and push them to the remote. It clones the latest templates, sets everything up, and cleans up after itself.
 
 ## What Gets Created
 
 ```
 my-project/
     AGENTS.md              # Core agent instructions
-    CLAUDE.md              # Symlink to AGENTS.md (copy on Windows)
+    CLAUDE.md              # Symlink to AGENTS.md (copy on Windows, kept in sync by --update)
     agent_rules/
         commands/          # Step-by-step agent workflow instructions
         docs/
@@ -85,7 +91,7 @@ All state is stored in markdown files within `agent_rules/`. Git is the persiste
 
 ## Updating
 
-Running the setup script with `--update` (bash) or `-Update` (PowerShell) will:
+Running the setup script with `--update` will:
 - Overwrite command files with the latest versions
 - Add new commands, remove deprecated ones
 - Update core instructions in AGENTS.md while preserving your custom content (everything after `</core_instructions>`)
