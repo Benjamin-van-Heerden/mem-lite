@@ -83,6 +83,29 @@ This triggers `c_onboard`, which reads your project context — specs, tasks, me
 | `c_init_introspect_codebase` | "Introspect the codebase" | Generate a codebase reference doc |
 | `c_week_report` | "Week report" | Generate weekly summary from logs |
 
+## Monorepo / Subproject Support
+
+For monorepos where developers work in subdirectories (e.g., individual .NET solutions), you can create lightweight pointer files that redirect the agent to the repo root:
+
+```bash
+# From within a subdirectory (e.g., src/Gateway/Hexing/)
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/bash_setup.sh) --init-subproject
+```
+
+This creates a minimal `AGENTS.md` and `CLAUDE.md` in the current directory that tell the agent:
+- Where the repo root is (relative path)
+- To prefix all `agent_rules/` paths with the relative path to root
+- Concrete examples for onboarding, logging, creating specs, reading memories, etc.
+
+The agent stays in the subdirectory for all work — it simply reaches up to the root `agent_rules/` with relative paths when it needs mem lite files.
+
+This is useful when:
+- Your repo contains many independent projects/solutions
+- Developers open individual project directories rather than the repo root
+- You want to incrementally enable AI workflows per-project without touching the rest
+
+**Requirements:** mem lite must already be initialized at the repo root. The script walks upward from the current directory to find `agent_rules/`.
+
 ## How It Works
 
 mem lite is a file-based system — no CLI tool, no database, no runtime. The `agent_rules/commands/` directory contains step-by-step instructions written in a pseudo-code format that AI agents (Claude, Cursor, Copilot, etc.) read and execute.

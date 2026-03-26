@@ -7,8 +7,105 @@ TARGET_DIR="$(pwd)"
 CORE_END_TAG="</core_instructions>"
 
 UPDATE=false
+INIT_SUBPROJECT=false
 if [[ "${1:-}" == "--update" ]]; then
     UPDATE=true
+elif [[ "${1:-}" == "--init-subproject" ]]; then
+    INIT_SUBPROJECT=true
+fi
+
+# ── Subproject init (early exit) ──
+
+if $INIT_SUBPROJECT; then
+    # Walk upward to find the repo root (directory containing agent_rules/)
+    search_dir="$TARGET_DIR"
+    REPO_ROOT=""
+    while [[ "$search_dir" != "/" ]]; do
+        if [[ -d "$search_dir/agent_rules" ]] && [[ -f "$search_dir/AGENTS.md" ]]; then
+            REPO_ROOT="$search_dir"
+            break
+        fi
+        search_dir="$(dirname "$search_dir")"
+    done
+
+    if [[ -z "$REPO_ROOT" ]]; then
+        echo "❌ Could not find agent_rules/ in any parent directory."
+        echo "   Make sure mem lite is initialized at the repo root first."
+        exit 1
+    fi
+
+    if [[ "$REPO_ROOT" == "$TARGET_DIR" ]]; then
+        echo "❌ You are already at the repo root. No subproject init needed."
+        exit 1
+    fi
+
+    # Compute relative path from current dir to repo root
+    REL_PATH=$(python3 -c "import os; print(os.path.relpath('$REPO_ROOT', '$TARGET_DIR'))")
+
+    echo "📍 Repo root found at: $REPO_ROOT"
+    echo "📐 Relative path: $REL_PATH"
+
+    # Create AGENTS.md
+    agents_file="$TARGET_DIR/AGENTS.md"
+    if [[ -f "$agents_file" ]]; then
+        echo "⚠️  AGENTS.md already exists here. Overwrite? (y/N)"
+        read -rp "> " confirm </dev/tty
+        if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+            echo "Aborted."
+            exit 0
+        fi
+    fi
+
+    cat > "$agents_file" << SUBEOF
+# Subproject of monorepo
+
+This directory is a subproject within a larger repository.
+
+**Project root:** \`$REL_PATH/\`
+
+## Instructions
+
+1. Read \`$REL_PATH/AGENTS.md\` and follow all instructions there.
+2. All references to \`agent_rules/\` in those instructions refer to \`$REL_PATH/agent_rules/\`.
+3. Stay in this directory for all work. When a command references an \`agent_rules/\` path, prefix it with \`$REL_PATH/\`.
+
+## Examples
+
+**Onboarding:** read \`$REL_PATH/agent_rules/commands/c_onboard.md\` and follow it — but read project description from \`$REL_PATH/agent_rules/project_description.md\`, read specs from \`$REL_PATH/agent_rules/spec/\`, etc.
+
+**Logging:** read \`$REL_PATH/agent_rules/commands/c_create_log.md\` and create the log file in \`$REL_PATH/agent_rules/log/\`.
+
+**Creating a spec:** read \`$REL_PATH/agent_rules/commands/c_new_spec.md\` and create the spec file in \`$REL_PATH/agent_rules/spec/\`.
+
+**Reading memories:** read from \`$REL_PATH/agent_rules/memories/\`.
+
+**Creating a todo:** read \`$REL_PATH/agent_rules/commands/c_new_todo.md\` and create the todo file in \`$REL_PATH/agent_rules/todos/\`.
+
+In short: every \`agent_rules/\` path becomes \`$REL_PATH/agent_rules/\`. Everything else works as documented.
+SUBEOF
+    echo "  ✅ AGENTS.md"
+
+    # Create CLAUDE.md
+    claude_file="$TARGET_DIR/CLAUDE.md"
+    is_windows=false
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        is_windows=true
+    fi
+
+    if $is_windows; then
+        cp "$agents_file" "$claude_file"
+        echo "  ✅ CLAUDE.md (copy of AGENTS.md)"
+    else
+        if [[ -e "$claude_file" ]]; then
+            rm "$claude_file"
+        fi
+        ln -s "AGENTS.md" "$claude_file"
+        echo "  ✅ CLAUDE.md -> AGENTS.md (symlink)"
+    fi
+
+    echo ""
+    echo "✅ Subproject initialized. Agent will redirect to repo root at: $REL_PATH/"
+    exit 0
 fi
 
 # Clone the repo
