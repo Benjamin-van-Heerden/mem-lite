@@ -14,7 +14,7 @@
 
 ## Check for Open PR
 
-@tool@ Run `which gh` [Windows: `where gh`] to check if GitHub CLI is installed
+@tool@ Run `gh --version` to check if GitHub CLI is installed
 @if (gh is not installed)@
   @stop@ `gh` (GitHub CLI) is not installed. It is required for the merge workflow. Install it from https://cli.github.com/ and authenticate with `gh auth login`. Do NOT continue.
 @end if@

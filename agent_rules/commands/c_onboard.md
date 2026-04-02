@@ -38,7 +38,7 @@
 
 ## Check for Open PRs
 
-@tool@ Run `which gh` [Windows: `where gh`] to check if GitHub CLI is installed
+@tool@ Run `gh --version` to check if GitHub CLI is installed
 @if (gh is installed)@
   @tool@ Run `gh pr list --state open --json number,title,headRefName,url`
   @if (there are open PRs)@

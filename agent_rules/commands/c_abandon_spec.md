@@ -32,7 +32,7 @@ This is a destructive action. You must be absolutely certain which spec is being
 
 @tool@ Check the spec file for a `Branch:` line (e.g. `%% Branch: $dev_branch-{slug} %%`)
 @if (spec has a branch)@
-  @tool@ Run `which gh` [Windows: `where gh`] to check if GitHub CLI is installed
+  @tool@ Run `gh --version` to check if GitHub CLI is installed
   @if (gh is installed)@
     @tool@ Run `gh pr list --head {branch_name} --state open --json number`
     @if (there is an open PR)@

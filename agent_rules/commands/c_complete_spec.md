@@ -59,7 +59,7 @@ This is the permanent record attached to the spec — it should be self-containe
 
   ## Create Pull Request
 
-  @tool@ Run `which gh` [Windows: `where gh`] to check if GitHub CLI is installed
+  @tool@ Run `gh --version` to check if GitHub CLI is installed
   @if (gh is not installed)@
     @stop@ `gh` (GitHub CLI) is not installed. It is required for the PR workflow. Install it from https://cli.github.com/ and authenticate with `gh auth login`. Do NOT continue.
   @end if@
