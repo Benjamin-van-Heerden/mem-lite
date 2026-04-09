@@ -52,11 +52,11 @@ Commands are step-by-step instructions that you read and execute when called upo
 |---|---|---|
 | `c_onboard` | "Get onboarded", "Let's get to work", or start of session | Read context: core docs, memories, todos, work logs. Warn if not on dev branch. **Always start here.** |
 | `c_create_spec` | "Create a spec", "Let's spec this out" | Create a spec file. Optionally branch off `$dev_branch` for the feature (asks the user). |
-| `c_complete_spec` | "Complete the spec", "Finalize the spec" | Finalize spec. If on a feature branch: rebase, push, create PR, mark as `Merge Ready`. Otherwise: mark `Completed` and move to `spec/completed/`. |
-| `c_merge` | "Merge the spec", "Merge the PR" | Squash-merge a `Merge Ready` spec's PR via `gh`, sync local, mark `Completed`, move to `spec/completed/`, clean up branches. |
+| `c_complete_spec` | "Complete the spec", "Finalize the spec" | Finalize spec. If on a feature branch: rebase, push, create PR. Otherwise: mark `Completed` and move to `spec/completed/`. An open PR indicates the spec is ready to merge. |
+| `c_merge` | "Merge the spec", "Merge the PR" | Squash-merge a spec's PR via `gh` (verifies it's mergeable), sync local, move to `spec/completed/`, clean up branches. |
 | `c_clean_git` | "Clean up branches", "Clean git" | Delete local and remote branches that have been merged into `$dev_branch`. Never touches `$dev_branch`, `$prod_branch`, or `$test_branch`. |
 | `c_log_work` | "Log work", "Create a work log" | Create a work log for the current session. Also called internally by `c_complete_spec`. |
-| `c_abandon_spec` | "Abandon the spec", "Drop this spec" | Move spec to abandoned. Closes any open PR for the spec's branch. |
+| `c_abandon_spec` | "Abandon the spec", "Drop this spec" | Move spec to abandoned. Closes any open PR and deletes the branch. |
 | `c_create_memory` | "Remember this", "Create a memory" | Create a short, atomic memory note about a pattern, convention, or useful reference. |
 | `c_create_todo` | "Create a todo", "Add a todo" | Create a standalone work item not tied to a spec. |
 | `c_claim_todo` | "Claim a todo", "Complete this todo" | Claim a todo (mark it done and move to claimed/). |

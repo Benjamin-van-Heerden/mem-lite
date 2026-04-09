@@ -13,6 +13,14 @@ Todos are useful for tracking small fixes, improvements, or follow-up items disc
 
 @tool@ Derive a short descriptive slug from the title (lowercase, underscores, no special chars) @into@ --todo_slug
 
+@tool@ Check if `agent_rules/todos/t_{--todo_slug}.md` already exists
+@if (the file already exists)@
+  @stop@ A todo with this slug already exists. Ask the user if they want to:
+  - Append a distinguishing word to the slug (e.g., "t_{--todo_slug}_backend")
+  - Or update the existing todo instead
+  Do NOT proceed until the user confirms how to handle this collision.
+@end if@
+
 @tool@ Ensure the directory `agent_rules/todos/` exists (create it if it doesn't)
 
 @tool@ Create a todo file `agent_rules/todos/t_{--todo_slug}.md`

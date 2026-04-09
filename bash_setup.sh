@@ -451,21 +451,20 @@ else
     DEV_BRANCH=$(prompt_with_default "Which branch is your development branch?" "dev")
     TEST_BRANCH=$(prompt_with_default "Which branch is your test/staging branch?" "test")
 
-    # Create dev branch if needed
-    if ! echo "$branches" | grep -qxF "$DEV_BRANCH"; then
-        git switch -c "$DEV_BRANCH" "$PROD_BRANCH"
-        git push -u origin "$DEV_BRANCH"
-        echo "✅ Created branch '$DEV_BRANCH' off '$PROD_BRANCH' and pushed to remote"
-    else
-        git switch "$DEV_BRANCH"
-    fi
-
     # Create test branch off prod if needed
     if ! echo "$branches" | grep -qxF "$TEST_BRANCH"; then
         git switch -c "$TEST_BRANCH" "$PROD_BRANCH"
         git push -u origin "$TEST_BRANCH"
-        git switch "$DEV_BRANCH"
         echo "✅ Created branch '$TEST_BRANCH' off '$PROD_BRANCH' and pushed to remote"
+    fi
+
+    # Create dev branch if needed
+    if ! echo "$branches" | grep -qxF "$DEV_BRANCH"; then
+        git switch -c "$DEV_BRANCH" "$TEST_BRANCH"
+        git push -u origin "$DEV_BRANCH"
+        echo "✅ Created branch '$DEV_BRANCH' off '$TEST_BRANCH' and pushed to remote"
+    else
+        git switch "$DEV_BRANCH"
     fi
 
     echo ""

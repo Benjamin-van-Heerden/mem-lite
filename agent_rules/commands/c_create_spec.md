@@ -14,7 +14,9 @@
 
 @tool@ Derive a short slug from the feature name (lowercase, underscores, no special chars) @into@ --spec_slug
 
-@tool@ Create a spec file `agent_rules/spec/s_{YYYYMMDD}_{--user_name}__{--spec_slug}.md`
+@tool@ Check if the file `agent_rules/spec/s_{YYYYMMDD}_{--user_name}__{--spec_slug}.md` already exists. If it does, use `agent_rules/spec/s_{YYYYMMDD}_{--user_name}__{--spec_slug}_{HHmm}.md` instead (append the time).
+
+@tool@ Create the spec file at the determined path
 
 @composite action@
   @tools: [edit file]@

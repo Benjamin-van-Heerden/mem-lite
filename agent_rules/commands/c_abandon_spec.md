@@ -24,11 +24,29 @@ This is a destructive action. You must be absolutely certain which spec is being
 
 @tool@ Update the spec status to `Abandoned`
 
+## Commit First
+
+@tool@ Run `git add -A && git commit -m "spec: abandon {--spec_slug}"`
+
+@tool@ Run `git push`
+@if (push failed)@
+  @stop@ Failed to push to remote. Show the user the error output. Do NOT continue.
+@end if@
+
+## Then Move to Abandoned
+
 @tool@ Ensure the directory `agent_rules/spec/abandoned/` exists (create it if it doesn't)
 
 @tool@ Move the spec file to `agent_rules/spec/abandoned/`
 
-## Close PR if Exists
+@tool@ Run `git add -A && git commit -m "spec: move {--spec_slug} to abandoned"`
+
+@tool@ Run `git push`
+@if (push failed)@
+  @stop@ Failed to push to remote. Show the user the error output. Do NOT continue.
+@end if@
+
+## Close PR and Delete Branch if Exists
 
 @tool@ Check the spec file for a `Branch:` line (e.g. `%% Branch: $dev_branch-{slug} %%`)
 @if (spec has a branch)@
@@ -38,6 +56,7 @@ This is a destructive action. You must be absolutely certain which spec is being
     @if (there is an open PR)@
       @tool@ Run `gh pr close {pr_number} --comment "Spec abandoned"`
     @end if@
+    @tool@ Run `git push origin --delete {branch_name}` (ignore errors — branch may already be deleted or not pushed)
   @else@
     @tool@ Warn the user: "`gh` (GitHub CLI) is not installed. If there is an open PR for branch `{branch_name}`, it will need to be closed manually. Install `gh` from https://cli.github.com/ for automatic PR management."
   @end if@

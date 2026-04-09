@@ -39,10 +39,6 @@ This is the permanent record attached to the spec — it should be self-containe
 
 @if (--on_feature_branch)@
 
-  ## Mark as Merge Ready
-
-  @tool@ Update the spec status to `Merge Ready`
-
   ## Commit, Rebase, and Push
 
   @tool@ Run `git add -A && git commit -m "spec: complete {--spec_slug}"`
@@ -57,11 +53,16 @@ This is the permanent record attached to the spec — it should be self-containe
     @stop@ `git push --force-with-lease` failed. Show the user the error output. They may need to `git fetch origin` and retry. Do NOT continue.
   @end if@
 
-  ## Create Pull Request
+  ## Create or Verify Pull Request
 
   @tool@ Run `gh --version` to check if GitHub CLI is installed
   @if (gh is not installed)@
     @stop@ `gh` (GitHub CLI) is not installed. It is required for the PR workflow. Install it from https://cli.github.com/ and authenticate with `gh auth login`. Do NOT continue.
+  @end if@
+
+  @tool@ Run `gh pr list --head $dev_branch-{--spec_slug} --base $dev_branch --state open --json number,title,url`
+  @if (an open PR already exists)@
+    @stop@ An open PR already exists for this spec. Show the PR URL to the user. To merge, run `c_merge` when ready.
   @end if@
 
   @tool@ Run `gh pr create --base $dev_branch --head $dev_branch-{--spec_slug} --title "spec: {--spec_slug}" --body "{completion report summary}"`
@@ -70,10 +71,9 @@ This is the permanent record attached to the spec — it should be self-containe
   @end if@
 
   @finally@ Summarize:
-  - Spec status is now `Merge Ready`
   - PR has been created targeting `$dev_branch`
   - Show the PR URL
-  - To merge, run `c_merge` when the PR is ready
+  - An open PR indicates the spec is ready to merge — run `c_merge` when approved
 
 @else@
 
@@ -81,17 +81,26 @@ This is the permanent record attached to the spec — it should be self-containe
 
   @tool@ Update the spec status to `Completed`
 
-  @tool@ Ensure the directory `agent_rules/spec/completed/` exists (create it if it doesn't)
-
-  @tool@ Move the spec file to `agent_rules/spec/completed/`
-
-  ## Commit and Push
+  ## Commit First
 
   @tool@ Run `git add -A && git commit -m "spec: complete {--spec_slug}"`
 
   @tool@ Run `git push`
   @if (push failed)@
     @stop@ Failed to push to remote. Show the user the error output. Do NOT continue.
+  @end if@
+
+  ## Then Move to Completed
+
+  @tool@ Ensure the directory `agent_rules/spec/completed/` exists (create it if it doesn't)
+
+  @tool@ Move the spec file to `agent_rules/spec/completed/`
+
+  @tool@ Run `git add -A && git commit -m "spec: move {--spec_slug} to completed"`
+
+  @tool@ Run `git push`
+  @if (push failed)@
+    @stop@ Failed to push to remote. Show the user the error output. You may need to resolve this manually. Do NOT continue.
   @end if@
 
   @finally@ Summarize: spec completed, moved to `spec/completed/`, and pushed to remote.

@@ -40,7 +40,10 @@
 @end composite action@
 
 @if (there is an associated spec file)@
-  @tool@ Edit the spec file to reflect the current state of the project.
+  @tool@ Edit the spec file to:
+  - Check off any completed task goals (`- [x] goal`)
+  - Update the "Key Files" section with files modified during this session
+  - Update any other sections that need to reflect the current state
 @end if@
 
 ## Commit

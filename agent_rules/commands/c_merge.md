@@ -1,13 +1,13 @@
 ## Identify Spec to Merge
 
-@tool@ List spec files in `agent_rules/spec/` (not completed/ or abandoned/) and check for specs with status `Merge Ready`
+@tool@ List spec files in `agent_rules/spec/` (not completed/ or abandoned/)
 
-@if (no specs with status "Merge Ready" found)@
-  @stop@ No specs are ready to merge. Complete a spec first with `c_complete_spec`.
+@if (no active spec files found)@
+  @stop@ No active specs found. Complete a spec first with `c_complete_spec`.
 @end if@
 
-@if (the user has not specified which spec to merge, OR there are multiple merge-ready specs and it is ambiguous)@
-  @stop@ Present the merge-ready specs to the user. Ask them to confirm which one to merge. Do NOT proceed until the user explicitly confirms.
+@if (the user has not specified which spec to merge, OR there are multiple specs and it is ambiguous)@
+  @stop@ Present the active specs to the user. Ask them to confirm which one to merge. Do NOT proceed until the user explicitly confirms.
 @end if@
 
 @tool@ Derive the spec slug from the confirmed spec file @into@ --spec_slug
@@ -19,7 +19,7 @@
   @stop@ `gh` (GitHub CLI) is not installed. It is required for the merge workflow. Install it from https://cli.github.com/ and authenticate with `gh auth login`. Do NOT continue.
 @end if@
 
-@tool@ Run `gh pr list --head $dev_branch-{--spec_slug} --base $dev_branch --state open --json number,title,url`
+@tool@ Run `gh pr list --head $dev_branch-{--spec_slug} --base $dev_branch --state open --json number,title,url,mergeable`
 @if (gh command failed)@
   @stop@ Failed to query PRs. Make sure `gh` is authenticated (`gh auth status`). Do NOT continue.
 @end if@
@@ -29,6 +29,19 @@
 @end if@
 
 @tool@ Extract the PR number @into@ --pr_number
+
+## Check PR is Ready to Merge
+
+@tool@ Run `gh pr view {--pr_number} --json mergeable,mergeStateStatus,commits,treeId`
+@if (PR is NOT mergeable OR mergeStateStatus is "BLOCKED" OR mergeStateStatus is "UNSTABLE")@
+  @stop@ The PR is not ready to merge. Common reasons:
+  - Merge conflicts that need to be resolved
+  - Required status checks are failing
+  - Branch protection rules are blocking
+  - Draft PR (mark as ready for review)
+  
+  Please resolve the issue on GitHub and try again. Do NOT continue.
+@end if@
 
 ## Merge the PR
 
@@ -50,13 +63,22 @@
 
 @tool@ Update the spec status to `Completed`
 
+## Commit First
+
+@tool@ Run `git add -A && git commit -m "spec: merge {--spec_slug}"`
+
+@tool@ Run `git push`
+@if (push failed)@
+  @stop@ Failed to push to remote. Show the user the error output. Do NOT continue.
+@end if@
+
+## Then Move to Completed
+
 @tool@ Ensure the directory `agent_rules/spec/completed/` exists (create it if it doesn't)
 
 @tool@ Move the spec file to `agent_rules/spec/completed/`
 
-@tool@ Run `git add -A && git commit -m "spec: merge {--spec_slug}"`
-
-## Push
+@tool@ Run `git add -A && git commit -m "spec: move {--spec_slug} to completed"`
 
 @tool@ Run `git push`
 @if (push failed)@

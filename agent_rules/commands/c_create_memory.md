@@ -19,6 +19,14 @@ Memories can be created in two ways:
 
 @tool@ Derive a short descriptive slug from the topic (lowercase, underscores, no special chars) @into@ --memory_slug
 
+@tool@ Check if `agent_rules/memories/m_{--memory_slug}.md` already exists
+@if (the file already exists)@
+  @stop@ A memory with this slug already exists. Ask the user if they want to:
+  - Append a distinguishing word to the slug (e.g., "m_{--memory_slug}_framework")
+  - Or update the existing memory instead
+  Do NOT proceed until the user confirms how to handle this collision.
+@end if@
+
 @tool@ Create a memory file `agent_rules/memories/m_{--memory_slug}.md`
 
 @composite action@
