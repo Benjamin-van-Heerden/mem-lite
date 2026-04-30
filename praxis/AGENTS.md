@@ -56,7 +56,6 @@ upcoming deadlines all come from onboard. Without it you are guessing.
 │   ├── memories/                # Persistent atomic notes. Read on onboard.
 │   ├── log/                     # Session work logs. Recent ones read on onboard.
 │   ├── todos/                   # Open standalone todos. claimed/ holds done.
-│   ├── tmp/                     # Scratch space.
 │   └── lawyer_profile.md        # Lawyer profile, jurisdiction, working style.
 │
 ├── functions/                   # Small reusable typst snippets (#import these).
@@ -86,13 +85,11 @@ do before/after.
 | Command | Use it when |
 |---|---|
 | `c_onboard` | Always, on the first message of a session. |
+| `c_initial_setup` | First run only — lawyer profile interview, design the default template, optional legal_context. Run when `lawyer_profile.md` is still a placeholder **and** `templates/components/style.typ` doesn't exist. |
 | `c_focus_matter` | Lawyer points to a specific matter — mini-onboard before working on it. |
 | `c_new_client` | Lawyer mentions a new person/entity to act for. |
 | `c_new_matter` | Lawyer is opening a new file (lawsuit, deal, advice request) under an existing client. |
 | `c_resolve_matter` | Matter is concluded. |
-| `c_new_document` | Lawyer wants something drafted (letter, motion, opinion, contract, memo). |
-| `c_new_template` | A finished document is reusable — promote it to a template. |
-| `c_new_function` | A typst snippet keeps recurring — make it reusable. |
 | `c_ingest_raw` | Files have appeared in a matter's `raw/` and need to be readable. |
 | `c_log_communication` | Any inbound or outbound contact: letter, email, call, meeting, court filing. |
 | `c_add_deadline` | Any date with a consequence: court filing, prescription, follow-up. |
@@ -110,15 +107,18 @@ column, suggest the right column.
 
 | Lawyer says... | You suggest / do |
 |---|---|
+| "Let's set things up", "Help me get started", "Design my default template" | `c_initial_setup` |
 | "Let's work on X", "Pull up the X case", "The breach matter" | `c_focus_matter` (mini-onboard the matter before doing anything else) |
 | "I have a new client", "Sign up X" | `c_new_client` (derive the slug yourself) |
 | "Open a matter", "New file for X", "X is suing Y" | `c_new_matter` (under the implied client) |
 | "Tom called", "Got an email from", "I sent a letter to" | "Want me to log that?" → `c_log_communication` |
 | Lawyer pastes an email body | "Looks like an email from / to X — want me to log it?" → `c_log_communication` (derive direction, counterparty, subject from the email itself) |
 | "Filing is due X", "Court date is Y", "Diary the date" | "Want me to add that as a deadline?" → `c_add_deadline` |
-| "Draft a letter to", "Need a notice of motion", "Write up an opinion on" | `c_new_document` (pick the closest template) |
+| "Draft a letter to", "Need a notice of motion", "Write up an opinion on" | Make sure the matter is focused first. Then draft directly into the matter — see *Drafting, functions, and templates*. |
 | "Just to note that", "For the record", a strategic decision, an observation | "Want me to add that to the record?" → `c_record` |
-| "Save this", "Make this reusable", "We use this language a lot" | `c_new_template` or `c_create_memory` or `c_new_function` (whichever fits) |
+| "Let's extract this to a function", "We use this snippet a lot" | Write a function under `functions/` and update callers — see *Drafting, functions, and templates*. |
+| "Save this as a template", "Make a template of XYZ" | Sanitise the source, save under the right `templates/<category>/` subdir — see *Drafting, functions, and templates*. |
+| "Save this" / "Remember this approach" (general — not a template or function) | `c_create_memory` |
 | "Remind me to", "Don't forget", "Later we should" | "Want me to add a todo?" → `c_create_todo` (scope to the active matter when the context implies one) |
 | "Did the X thing", "Handled that one" | `c_claim_todo` |
 | "Settled", "Closed", "Done with this matter" | `c_resolve_matter` |
@@ -169,15 +169,83 @@ When you need to know about a matter, look in this order:
 
 Don't read the entire matter front to back unless asked — be focused.
 
-## Working with typst
+## Drafting, functions, and templates
 
-- The lawyer typically runs `typst watch` on the active document. You edit the
-  `.typ` file; the PDF rebuilds automatically. If they ask, you compile
-  manually.
-- Use `functions/` for small reusable snippets: currency formatting, date
-  formatting, citation helpers, table styles.
-- Use `templates/components/` for shared building blocks: letterhead,
-  signature block, page setup.
+Producing typst output — drafts inside a matter, reusable functions, reusable
+templates — is routine file work. There are no commands for it; just
+conventions you follow.
+
+The foundation is `templates/components/style.typ`. This is the lawyer's
+**default template** — page setup, fonts, letterhead, signature block, and
+high-level helpers like `firm_letter`. Every document you draft should
+build on it (`#import "templates/components/style.typ": *` or similar). If
+this file doesn't exist yet, the lawyer is on a first run — you should be
+running `c_initial_setup` to design it together, not improvising drafts.
+
+### Always work inside a focused matter
+
+Drafting requires the matter's facts. If `c_focus_matter` hasn't been run for
+the current matter in this session, run it before drafting anything. **And
+when the lawyer switches matters mid-session** ("now let's look at Jones"),
+run `c_focus_matter` on the new matter — never carry stale context across.
+
+### Drafting a document
+
+When the lawyer asks for something drafted (letter, motion, opinion, contract,
+memo):
+
+1. **Pick a template.** Either the lawyer specifies one ("use the demand
+   letter template") or you pick the closest match from `templates/<category>/`.
+   You already have ambient awareness of what's available from onboard. If
+   nothing fits, start from `templates/components/style.typ` or write fresh.
+2. **Write to the matter root** as `NN_<slug>.typ`, where `NN` is the next
+   sequence number, zero-padded to two digits. Find the next number by
+   scanning existing `*.typ` files in the matter root. Slug from purpose:
+   `letter_of_demand`, `answering_affidavit`, `opinion_prescription`.
+3. **Use `functions/` and `templates/components/`** for currency, dates,
+   citations, letterhead, signature, page setup. Don't reimplement what's
+   already there.
+4. **Preview in plain language**, not typst source. Read back the key
+   sections ("here's the demand paragraph: …") so the lawyer can react
+   without reading code.
+5. The lawyer typically runs `typst watch` on the active document; the PDF
+   rebuilds automatically as you edit. If asked, compile manually.
+
+Do **not** auto-suggest `c_log_communication` after drafting. Drafting is
+not a communication. Suggest it only when the lawyer indicates the document
+has been *sent*.
+
+### Extracting a function
+
+When the lawyer says "let's extract this to a function" / "we use this
+snippet a lot":
+
+1. Identify the recurring snippet.
+2. Pick a slug — short, lowercase, descriptive: `currency_zar`, `case_citation`,
+   `numbered_clauses`.
+3. Write `functions/<slug>.typ` with a one-line header comment explaining
+   what it does and how to import it.
+4. Update existing documents that had the inline version to `#import` the
+   new function.
+5. Confirm in plain language.
+
+### Promoting a template
+
+When the lawyer says "save this as a template" / "make a template of XYZ":
+
+1. **Pick a category subdir** under `templates/`: `letters`, `pleadings`,
+   `opinions`, `contracts`, `memos`, `components`. Pick by purpose.
+2. **Sanitise first.** Edit the source to remove client names, opposing
+   parties, case numbers, dates, privileged facts. Replace with descriptive
+   placeholders or generic illustrative content. Keep structure, headings,
+   formatting, reusable phrasing.
+3. **Confirm the sanitised version** with the lawyer before saving.
+4. Write to `templates/<category>/<slug>.typ`.
+5. If the template represents a "way of doing things worth remembering"
+   (when to reach for it, edge cases, who it's for), suggest `c_create_memory`.
+
+### Conventions
+
 - ISO dates (`2026-04-29`) in frontmatter and internal records. In document
   bodies, follow the date format set in `agent_rules/docs/core/legal_context.typ`.
 - Currency, citation style, and jurisdictional formatting all defer to

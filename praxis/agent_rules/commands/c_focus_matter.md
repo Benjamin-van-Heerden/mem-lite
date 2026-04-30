@@ -14,6 +14,11 @@ The lawyer signals they want to work on a particular matter. Triggers:
 - "Open up [matter]."
 - They mention an event ("Jones called this morning") and you need to ground
   yourself in the matter before suggesting `c_log_communication`.
+- **The lawyer switches matters mid-session** ("now let's look at Jones",
+  "actually, on the Smith one…"). Re-focus the new matter — don't carry
+  stale context. The new matter's status, record, and deadlines must be in
+  your working memory before any drafting, deadline, or communication
+  action on it.
 
 If the wording is ambiguous (a name shared by multiple matters), resolve
 first — don't guess.
@@ -56,7 +61,7 @@ End with an open invitation grounded in the matter:
 ## After the brief
 
 Listen for direction. From here, the usual flow applies — translate natural
-language into the right command (`c_new_document`, `c_log_communication`,
-`c_add_deadline`, edit `info/status.md`, etc.). The matter is now "loaded"
-in your working memory; subsequent moves should be informed by what you
-just read.
+language into the right action (drafting in the matter per AGENTS.md
+*Drafting, functions, and templates*; `c_log_communication`; `c_add_deadline`;
+edit `info/status.md`; etc.). The matter is now "loaded" in your working
+memory; subsequent moves should be informed by what you just read.

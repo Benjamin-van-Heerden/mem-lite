@@ -36,28 +36,57 @@ lawyer; just internalise the context.
 8. **Memories.** Read every file in `agent_rules/memories/`.
 9. **Open todos.** Read every file in `agent_rules/todos/` (excluding
    `claimed/`).
+10. **Available typst building blocks.** List filenames only (do not read
+    contents) of `functions/` and the `templates/` subdirs. Use:
 
-## Briefing
+    ```
+    find functions templates -maxdepth 2 -name '*.typ' -type f 2>/dev/null
+    ```
 
-Print a compact briefing to the lawyer in plain language. Aim for under 30
-lines. Structure:
+    This is for ambient awareness — when the lawyer later asks for something
+    drafted, you should know what reusable templates and functions already
+    exist without having to re-survey the tree. Read the contents on demand
+    when actually drafting.
 
-- **Placeholder warnings (if any).** If `lawyer_profile.md` or any core doc
-  was flagged as unfilled in steps 1–2, lead with a strong, prominent warning
-  block before anything else. Be direct, not apologetic. For example:
+11. **First-run detection.** Check whether **both** of these are true:
+
+    - `agent_rules/lawyer_profile.md` contains the literal string
+      `PLACEHOLDER — NOT YET FILLED IN`.
+    - `templates/components/style.typ` does **not** exist.
+
+    If both are true, this is a fresh praxis install. Set a `first_run`
+    flag — you will offer the first-run setup flow at the end of the
+    briefing instead of the usual open invitation.
+
+## If `first_run` flag is set
+
+Stop the onboard flow here and run `c_initial_setup`. Do not print the
+normal briefing — there's nothing useful in it (no clients, no matters,
+no deadlines, no logs). c_initial_setup handles the welcome, the pitch,
+and the setup itself.
+
+## Briefing (normal case)
+
+Print a compact briefing to the lawyer in plain language. Aim for under
+30 lines. Structure:
+
+- **Placeholder warnings (if any).** If `lawyer_profile.md` or any core
+  doc was flagged as unfilled in steps 1–2, lead with a strong, prominent
+  warning block before anything else. Be direct, not apologetic. For
+  example:
 
   > ⚠ **Setup incomplete.** `agent_rules/lawyer_profile.md` and
-  > `agent_rules/docs/core/legal_context.typ` are still placeholders. Until
-  > you fill these in, my drafting will be guesswork — wrong tone, wrong
-  > citation style, possibly wrong jurisdictional rules. Please fill them in
-  > before we draft anything substantive.
+  > `agent_rules/docs/core/legal_context.typ` are still placeholders.
+  > Until you fill these in, my drafting will be guesswork — wrong tone,
+  > wrong citation style, possibly wrong jurisdictional rules. Please
+  > fill them in before we draft anything substantive.
 
-  List exactly which files are unfilled. Don't soften — the lawyer needs to
-  know. If everything is filled, skip this section entirely.
+  List exactly which files are unfilled. Don't soften — the lawyer needs
+  to know. If everything is filled, skip this section entirely.
 
-- **Profile line.** One line: who they are / what they practice (drawn from
-  `lawyer_profile.md`). Skip if `lawyer_profile.md` is still a placeholder
-  (the warning above already covers it).
+- **Profile line.** One line: who they are / what they practice (drawn
+  from `lawyer_profile.md`). Skip if `lawyer_profile.md` is still a
+  placeholder (the warning above already covers it).
 - **Where things stand.** Number of clients, number of open matters, count
   of upcoming deadlines, total open todos.
 - **Imminent.** Any deadlines in the next 14 days, sorted by date. State
@@ -83,8 +112,8 @@ The lawyer will respond. Listen for direction:
 
 - **They name a matter** ("let's work on Smith", "the breach case") → run `c_focus_matter`. Do that **before** continuing with any specific request they tacked on.
 - **They mention something that happened** ("Jones called this morning", "we got served yesterday") → suggest the appropriate record (`c_log_communication`, `c_add_deadline`, edit `info/status.md`).
-- **They want something drafted** without naming a matter → ask which matter or client it relates to.
-- **They want to start something new** ("I have a new client", "open a matter") → run the corresponding `c_new_*` command.
+- **They want something drafted** → make sure the matter is focused first (run `c_focus_matter` if not), then draft per AGENTS.md *Drafting, functions, and templates*. If they didn't name a matter, ask.
+- **They want to start something new** ("I have a new client", "open a matter") → run the corresponding `c_new_client` / `c_new_matter` command.
 - **They ask a question** → answer from the loaded context, draw on memories.
 - **They go quiet or say "let's begin"** → wait for direction; don't start work uninvited.
 

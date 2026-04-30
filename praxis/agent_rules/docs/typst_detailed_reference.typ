@@ -2732,8 +2732,5 @@ docs, the official docs are right.
 // - Treat this file as read-only. If you need to extend the Praxis system of
 //   work, add new files (firm-letter.typ, contract-template.typ, etc.) and
 //   reference them by import.
-// - When you draft a new document, copy the relevant cookbook starter rather
-//   than building from scratch. Most legal documents are ninety percent
-//   patterns we have seen before.
 // - Pin every package version you import. Document why.
 // - Comment your code. Future readers — including yourself — will thank you.
