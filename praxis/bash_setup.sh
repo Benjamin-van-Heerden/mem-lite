@@ -10,7 +10,7 @@
 #   AGENTS.md (core block only — user content after </core_instructions> preserved)
 #   CLAUDE.md (symlink/copy of AGENTS.md)
 #   agent_rules/commands/*.md
-#   agent_rules/scripts/*.sh
+#   agent_rules/scripts/*.py
 #
 # New skeletons added on --update (existing skeletons preserved):
 #   agent_rules/skeletons/*.md  (use --reset-skeletons to restore canonical versions)
@@ -20,6 +20,10 @@
 #   agent_rules/lawyer_profile.md
 #   functions/*.typ
 #   templates/**/*.typ
+#
+# Runtime requirement: Python 3.12+ on PATH as `python` (the agent invokes
+# scripts with `python agent_rules/scripts/<name>.py ...`). The setup itself
+# only needs bash + git.
 
 set -euo pipefail
 
@@ -170,10 +174,6 @@ setup_claude_md() {
     fi
 }
 
-set_executable() {
-    chmod +x "$TARGET_DIR/agent_rules/scripts/"*.sh 2>/dev/null || true
-}
-
 # ── Modes ──
 
 case "$MODE" in
@@ -212,7 +212,6 @@ case "$MODE" in
 
         setup_agents_md
         setup_claude_md
-        set_executable
 
         echo ""
         echo "✅ Praxis initialised."
@@ -238,7 +237,6 @@ case "$MODE" in
         copy_tree "agent_rules/skeletons" "agent_rules/skeletons" false "skeletons"
         setup_agents_md
         setup_claude_md
-        set_executable
         echo ""
         echo "✅ Update complete."
         ;;

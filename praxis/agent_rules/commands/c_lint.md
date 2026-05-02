@@ -16,7 +16,7 @@ tool. Run it when needed.
 ## Action
 
 ```
-agent_rules/scripts/lint.sh
+python agent_rules/scripts/lint.py
 ```
 
 Reports missing required keys and out-of-set values for `status` and

@@ -11,6 +11,7 @@ When the lawyer says things like:
 - "We'll need to review that clause before signing."
 - "I should check the new amendments to the Act when I have time."
 - "Don't forget to invoice for this."
+- "Later we should...", "When I have time..."
 
 Suggest:
 
@@ -31,7 +32,7 @@ Suggest:
 ## Action
 
 ```
-agent_rules/scripts/new_todo.sh <slug> "<title>" [priority] [matter_ref]
+python agent_rules/scripts/new_todo.py <slug> "<title>" [priority] [matter_ref]
 ```
 
 ## Then fill in

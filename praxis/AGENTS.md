@@ -30,7 +30,7 @@ upcoming deadlines all come from onboard. Without it you are guessing.
   better than "What should we do next?" The lawyer doesn't know the system;
   you do. Offer the next move concretely.
 - **Translate, don't quote.** Say "I've set up Smith Corp as a client" — not
-  "Running new_client.sh". Never expose script names, paths, slugs, or
+  "Running new_client.py". Never expose script names, paths, slugs, or
   filesystem detail unless the lawyer asks for them.
 - **Derive slugs yourself.** When the lawyer mentions a name ("Smith Corp Pty
   Ltd") you derive the slug (`smith_corp`) and use it. If the lawyer cares
@@ -40,8 +40,10 @@ upcoming deadlines all come from onboard. Without it you are guessing.
   language: "Logged. Next deadline now 15 May 2026 for the answering
   affidavit."
 - **Be alert to ambient cues.** Phone calls, dates, follow-ups, recurring
-  phrasing — all of these are opportunities to suggest a record. See *Common
-  moves* below.
+  phrasing — all of these are opportunities to suggest a record. The trigger
+  conditions for each command live in the command's playbook (read at onboard
+  via `show_commands.py`); match the lawyer's natural-language input against
+  the *When to suggest* / *When to use* sections.
 
 ## Directory layout (your reference, not the lawyer's)
 
@@ -49,7 +51,7 @@ upcoming deadlines all come from onboard. Without it you are guessing.
 .
 ├── agent_rules/
 │   ├── commands/                # Step-by-step playbooks. Read and follow them.
-│   ├── scripts/                 # Shell helpers. Invoke them; don't reimplement.
+│   ├── scripts/                 # Python helpers. Invoke them; don't reimplement.
 │   ├── skeletons/               # Canonical file shapes used by scripts.
 │   ├── docs/
 │   │   └── core/                # Auto-loaded on onboard (typst reference, legal_context).
@@ -78,63 +80,26 @@ upcoming deadlines all come from onboard. Without it you are guessing.
 
 ## Commands
 
-Each command is a markdown playbook in `agent_rules/commands/`. Read the
-playbook before acting. The playbook tells you which script to run and what to
-do before/after.
+Every command is a markdown playbook in `agent_rules/commands/`. The full
+contents of all playbooks are loaded into your context at onboard time (via
+`show_commands.py`) — read those for trigger conditions, argument shape, and
+follow-up steps. Below is just an at-a-glance index of what exists:
 
-| Command | Use it when |
-|---|---|
-| `c_onboard` | Always, on the first message of a session. |
-| `c_initial_setup` | First run only — lawyer profile interview, design the default template, optional legal_context. Run when `lawyer_profile.md` is still a placeholder **and** `templates/components/style.typ` doesn't exist. |
-| `c_focus_matter` | Lawyer points to a specific matter — mini-onboard before working on it. |
-| `c_new_client` | Lawyer mentions a new person/entity to act for. |
-| `c_new_matter` | Lawyer is opening a new file (lawsuit, deal, advice request) under an existing client. |
-| `c_resolve_matter` | Matter is concluded. |
-| `c_ingest_raw` | Files have appeared in a matter's `raw/` and need to be readable. |
-| `c_log_communication` | Any inbound or outbound contact: letter, email, call, meeting, court filing. |
-| `c_add_deadline` | Any date with a consequence: court filing, prescription, follow-up. |
-| `c_record` | Free-text note on a matter — decisions, observations, anything not covered by the structured commands. |
-| `c_log_work` | End of session, or when the lawyer says they're stopping. |
-| `c_create_memory` | A pattern, preference, or useful reference emerged. |
-| `c_create_todo` | A follow-up emerged that's out of scope right now. |
-| `c_claim_todo` | A todo got done. |
-| `c_lint` | Suspect schema drift after manual edits. |
+- `c_onboard` — first message of every session.
+- `c_initial_setup` — first-run flow (dispatched from `c_onboard`, or invoked
+  directly if the lawyer asks to set things up).
+- `c_focus_matter` — mini-onboard before working on a specific matter.
+- `c_new_client`, `c_new_matter`, `c_resolve_matter` — lifecycle.
+- `c_log_communication`, `c_add_deadline`, `c_record` — events on a matter.
+- `c_ingest_raw` — parse inbound documents into `reference/`.
+- `c_log_work` — end-of-session log.
+- `c_create_memory`, `c_create_todo`, `c_claim_todo` — cross-cutting
+  bookkeeping.
+- `c_lint` — frontmatter sanity check.
 
-## Common moves
-
-The lawyer speaks naturally. Translate. When you hear something like the left
-column, suggest the right column.
-
-| Lawyer says... | You suggest / do |
-|---|---|
-| "Let's set things up", "Help me get started", "Design my default template" | `c_initial_setup` |
-| "Let's work on X", "Pull up the X case", "The breach matter" | `c_focus_matter` (mini-onboard the matter before doing anything else) |
-| "I have a new client", "Sign up X" | `c_new_client` (derive the slug yourself) |
-| "Open a matter", "New file for X", "X is suing Y" | `c_new_matter` (under the implied client) |
-| "Tom called", "Got an email from", "I sent a letter to" | "Want me to log that?" → `c_log_communication` |
-| Lawyer pastes an email body | "Looks like an email from / to X — want me to log it?" → `c_log_communication` (derive direction, counterparty, subject from the email itself) |
-| "Filing is due X", "Court date is Y", "Diary the date" | "Want me to add that as a deadline?" → `c_add_deadline` |
-| "Draft a letter to", "Need a notice of motion", "Write up an opinion on" | Make sure the matter is focused first. Then draft directly into the matter — see *Drafting, functions, and templates*. |
-| "Just to note that", "For the record", a strategic decision, an observation | "Want me to add that to the record?" → `c_record` |
-| "Let's extract this to a function", "We use this snippet a lot" | Write a function under `functions/` and update callers — see *Drafting, functions, and templates*. |
-| "Save this as a template", "Make a template of XYZ" | Sanitise the source, save under the right `templates/<category>/` subdir — see *Drafting, functions, and templates*. |
-| "Save this" / "Remember this approach" (general — not a template or function) | `c_create_memory` |
-| "Remind me to", "Don't forget", "Later we should" | "Want me to add a todo?" → `c_create_todo` (scope to the active matter when the context implies one) |
-| "Did the X thing", "Handled that one" | `c_claim_todo` |
-| "Settled", "Closed", "Done with this matter" | `c_resolve_matter` |
-| "Settlement was offered", "They've changed attorneys", "New facts came in" | Update `info/status.md` directly. Then ask whether to log a communication or add a record entry. |
-| "End of day", "Logging off", "Let's call it" | "Want me to log work?" → `c_log_work` |
-| Lawyer drops a PDF/scan into a matter's `raw/` | "Want me to parse that into reference?" → `c_ingest_raw` |
-
-You don't need to wait for these exact words — match intent.
-
-## Focusing on a matter
-
-When the lawyer points to a specific matter, run **`c_focus_matter`** before
-doing anything else they asked for. It's a mini-onboard for the matter:
-read `info/status.md`, `info/record.md`, `info/deadlines.md`, list deliverables,
-list scoped open todos, then brief in plain language. The full playbook is in
-`agent_rules/commands/c_focus_matter.md`.
+You also have free-form moves that aren't commands: drafting documents,
+extracting functions, promoting templates, and updating a matter as facts
+emerge. Conventions for those are in the relevant sections below.
 
 ## Updating a matter as facts emerge
 

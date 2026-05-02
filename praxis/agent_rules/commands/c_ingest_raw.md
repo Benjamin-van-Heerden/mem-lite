@@ -19,7 +19,7 @@ Suggest:
 ## You handle
 
 - **Matter ref.** Resolve from context.
-- List unparsed files: `agent_rules/scripts/list_unparsed.sh <matter_ref>`.
+- List unparsed files: `python agent_rules/scripts/list_unparsed.py <matter_ref>`.
 
 ## Confirm
 
@@ -47,6 +47,6 @@ If multiple files are unparsed, ask which to parse (or "all").
 ## After
 
 - Confirm what was parsed.
-- Re-run `list_unparsed.sh` to show what's still unparsed.
+- Re-run `list_unparsed.py` to show what's still unparsed.
 - If the parse uncovered facts that affect the matter's posture, update
   `info/status.md`.

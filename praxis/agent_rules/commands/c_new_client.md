@@ -2,6 +2,20 @@
 
 Use when the lawyer mentions someone new they're acting for.
 
+## When to suggest
+
+Ambient cues:
+
+- "I have a new client."
+- "Sign up X", "Take on X."
+- "I'll be acting for [new name]" — and the name doesn't match any existing
+  client.
+- The lawyer starts describing a new entity or person without referring to an
+  existing matter.
+
+If the trigger is ambiguous (could be a new matter under an existing client),
+ask which.
+
 ## You handle
 
 - **Display name.** What the lawyer says ("Smith Corp Pty Ltd", "John Doe").
@@ -19,7 +33,7 @@ If the lawyer wants different naming, take their lead.
 ## Action
 
 ```
-agent_rules/scripts/new_client.sh <slug> "<display_name>" <type>
+python agent_rules/scripts/new_client.py <slug> "<display_name>" <type>
 ```
 
 The script creates `clients/<slug>/profile.md` with frontmatter populated, plus

@@ -25,7 +25,7 @@ first — don't guess.
 
 ## You handle
 
-- **Resolve the matter.** Run `agent_rules/scripts/find_matter.sh <pattern>`.
+- **Resolve the matter.** Run `python agent_rules/scripts/find_matter.py <pattern>`.
   If multiple match, briefly list candidates by client and ask which one.
 - **Read everything in `info/`.** Specifically:
   1. `info/status.md` — full file (frontmatter + Posture + Key facts + What's
@@ -36,7 +36,7 @@ first — don't guess.
   most recent. List `raw/` and `reference/`; flag anything in `raw/` that
   has no counterpart in `reference/` (would warrant `c_ingest_raw`).
 - **List matter-scoped open todos.** Run
-  `agent_rules/scripts/list_matter_todos.sh <matter_ref>`.
+  `python agent_rules/scripts/list_matter_todos.py <matter_ref>`.
 
 ## Brief
 

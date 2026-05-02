@@ -34,7 +34,7 @@ Suggest:
 ## Action
 
 ```
-agent_rules/scripts/record.sh <matter_ref> <date> "<text>"
+python agent_rules/scripts/record.py <matter_ref> <date> "<text>"
 ```
 
 The script appends a `note` entry to `info/record.md`. The first line of

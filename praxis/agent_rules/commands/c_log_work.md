@@ -23,7 +23,7 @@ Do **not** run unprompted.
 ## Action
 
 ```
-agent_rules/scripts/new_log.sh [matter_ref]
+python agent_rules/scripts/new_log.py [matter_ref]
 ```
 
 Creates `agent_rules/log/<timestamp>_log.md` with frontmatter populated and

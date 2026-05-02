@@ -3,6 +3,18 @@
 Use when the lawyer is opening a new file under an existing client (a lawsuit,
 a transaction, an advice request, an appeal, an arbitration, anything).
 
+## When to suggest
+
+Ambient cues:
+
+- "Open a matter for X", "New file for X."
+- "X is suing Y", "Y is being sued by X."
+- "I'm advising X on Y", "Drafting a deal for X."
+- The lawyer mentions a concrete legal problem or transaction tied to an
+  existing client without referring to an existing matter.
+
+If the underlying client doesn't yet exist, suggest `c_new_client` first.
+
 ## You handle
 
 - **Client.** Resolve from context. If the lawyer says "open a matter for Smith", and `smith_corp` is the only Smith, use it. If ambiguous, ask which.
@@ -18,7 +30,7 @@ a transaction, an advice request, an appeal, an arbitration, anything).
 ## Action
 
 ```
-agent_rules/scripts/new_matter.sh <client> <type> <slug> [priority] [billing]
+python agent_rules/scripts/new_matter.py <client> <type> <slug> [priority] [billing]
 ```
 
 Creates `clients/<client>/matters/open/YYYYMMDD-<type>-<slug>/` with

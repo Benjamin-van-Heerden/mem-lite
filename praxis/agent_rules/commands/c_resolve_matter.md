@@ -3,6 +3,20 @@
 Use when a matter is concluded — settled, dismissed, transaction completed,
 advice given, estate wound up.
 
+## When to suggest
+
+Ambient cues:
+
+- "Settled", "Closed", "Done with this matter."
+- "We've signed off", "Transaction completed", "Estate wound up."
+- "Dismissed with costs", "Withdrew the action", "Out of court settlement."
+- The lawyer signals the work on a specific matter is finished and there's
+  nothing further to do.
+
+Suggest:
+
+> "Want me to mark that resolved?"
+
 ## Before running
 
 Confirm with the lawyer that the matter is genuinely concluded. Surface anything
@@ -28,7 +42,7 @@ resolving.
 ## Action
 
 ```
-agent_rules/scripts/resolve_matter.sh <matter_ref>
+python agent_rules/scripts/resolve_matter.py <matter_ref>
 ```
 
 Sets `status: resolved` in the frontmatter, appends a `matter:resolved` entry

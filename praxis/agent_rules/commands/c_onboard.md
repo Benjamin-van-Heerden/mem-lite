@@ -21,42 +21,45 @@ lawyer; just internalise the context.
    pull from these throughout the session. As you read each file, check for
    the literal string `PLACEHOLDER — NOT YET FILLED IN`. Track which core
    docs are unfilled — you will warn about those in the briefing.
-3. **Clients.** Run `agent_rules/scripts/list_clients.sh`. This is who
+3. **Command playbooks.** Run `python agent_rules/scripts/show_commands.py`.
+   This dumps every command file (except this one) in a single output. Read
+   it in full and hold it in working memory — the *When to suggest* / *When
+   to use* sections are how you recognise which command applies to a given
+   lawyer cue, and the *Action* sections give the exact script invocation.
+   This is the single source of truth for command behaviour; do not assume
+   from past sessions.
+4. **Clients.** Run `python agent_rules/scripts/list_clients.py`. This is who
    exists. A client may have zero open matters and still need to be on your
    radar.
-4. **Open matters.** Run `agent_rules/scripts/list_open_matters.sh`. The
+5. **Open matters.** Run `python agent_rules/scripts/list_open_matters.py`. The
    output includes the `open_todos` count per matter — note matters with
    non-zero scoped todos.
-5. **Upcoming deadlines (14 days).** Run `agent_rules/scripts/upcoming_deadlines.sh 14`.
-6. **High-priority matters.** For any matter from step 4 with `priority: high`
+6. **Upcoming deadlines (14 days).** Run `python agent_rules/scripts/upcoming_deadlines.py 14`.
+7. **High-priority matters.** For any matter from step 5 with `priority: high`
    or `urgent`, read `info/status.md` (`## Posture` + `## What's next`) and
    the last ~5 entries of `info/record.md`. Don't run the full
    `c_focus_matter` flow yet — just enough to brief.
-7. **Recent work logs.** Read the 3 most recent files in `agent_rules/log/`.
-8. **Memories.** Read every file in `agent_rules/memories/`.
-9. **Open todos.** Read every file in `agent_rules/todos/` (excluding
-   `claimed/`).
-10. **Available typst building blocks.** List filenames only (do not read
-    contents) of `functions/` and the `templates/` subdirs. Use:
-
-    ```
-    find functions templates -maxdepth 2 -name '*.typ' -type f 2>/dev/null
-    ```
+8. **Recent work logs.** Read the 3 most recent files in `agent_rules/log/`.
+9. **Memories.** Read every file in `agent_rules/memories/`.
+10. **Open todos.** Read every file in `agent_rules/todos/` (excluding
+    `claimed/`).
+11. **Available typst building blocks.** List filenames only (do not read
+    contents) of `functions/` and the `templates/` subdirs. Use your Glob
+    tool with patterns `functions/**/*.typ` and `templates/**/*.typ`.
 
     This is for ambient awareness — when the lawyer later asks for something
     drafted, you should know what reusable templates and functions already
     exist without having to re-survey the tree. Read the contents on demand
     when actually drafting.
 
-11. **First-run detection.** Check whether **both** of these are true:
+12. **First-run detection.** This is a fresh praxis install when **both** of
+    these are true:
 
-    - `agent_rules/lawyer_profile.md` contains the literal string
-      `PLACEHOLDER — NOT YET FILLED IN`.
+    - The `lawyer_profile.md` placeholder flag from step 1 is set.
     - `templates/components/style.typ` does **not** exist.
 
-    If both are true, this is a fresh praxis install. Set a `first_run`
-    flag — you will offer the first-run setup flow at the end of the
-    briefing instead of the usual open invitation.
+    If both are true, set a `first_run` flag and skip the normal briefing
+    (see *If `first_run` flag is set* below).
 
 ## If `first_run` flag is set
 
@@ -117,5 +120,5 @@ The lawyer will respond. Listen for direction:
 - **They ask a question** → answer from the loaded context, draw on memories.
 - **They go quiet or say "let's begin"** → wait for direction; don't start work uninvited.
 
-Throughout, follow the *Common moves* and *How to talk to the lawyer* sections
-of `AGENTS.md`.
+Throughout, follow the *How to talk to the lawyer* section of `AGENTS.md` and
+the *When to suggest* sections of the command playbooks loaded in step 3.

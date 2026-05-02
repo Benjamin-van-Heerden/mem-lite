@@ -12,6 +12,7 @@ Ambient cues:
 - "Prescription runs out in three years."
 - "I need to follow up by Friday."
 - "We need to respond within 14 days."
+- "Filing is due X", "Diary the date", "Note the date for X."
 
 Suggest:
 
@@ -45,7 +46,7 @@ Confirm?"
 ## Action
 
 ```
-agent_rules/scripts/add_deadline.sh <matter_ref> <date> <type> "<description>"
+python agent_rules/scripts/add_deadline.py <matter_ref> <date> <type> "<description>"
 ```
 
 The script appends an `[open]` entry to `info/deadlines.md`, updates
@@ -66,5 +67,5 @@ complete.
 ## Closing a deadline later
 
 When a deadline is met or passes, edit `info/deadlines.md` directly: change `[open]`
-to `[done]`, `[missed]`, or `[waived]`. Then re-run `add_deadline.sh` against
+to `[done]`, `[missed]`, or `[waived]`. Then re-run `add_deadline.py` against
 any other open deadline (or edit `next_deadline` in `info/status.md`) to re-sync.

@@ -38,7 +38,7 @@ recording.
 ## Action
 
 ```
-agent_rules/scripts/log_communication.sh <matter_ref> <date> <direction> <medium> <counterparty> "<subject>"
+python agent_rules/scripts/log_communication.py <matter_ref> <date> <direction> <medium> <counterparty> "<subject>"
 ```
 
 Appends an entry to the matter's `info/record.md` with kind
