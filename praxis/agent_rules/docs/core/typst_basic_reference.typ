@@ -274,7 +274,7 @@ Horizontal: `left`, `right`, `center`, `start`, `end` (start/end are RTL-aware).
 
 ```typ
 #stack(dir: ttb, spacing: 1em, [a], [b], [c])
-#stack(dir: ltr, spacing: 1cm, sig_a, sig_b)
+#stack(dir: ltr, spacing: 1cm, sig-a, sig-b)
 ```
 
 === `grid` — explicit columns and rows (workhorse for layout)
@@ -479,10 +479,10 @@ Destructuring on the LHS of `let`:
 Local files:
 
 ```typ
-#import "firm-letter.typ": firm_letter, firm_name
-#import "firm-letter.typ"                   // module accessed as firm-letter.x
-#import "firm-letter.typ" as fl
-#import "firm-letter.typ": *                // import all public names
+#import "firm_letter.typ": firm_letter, firm-name
+#import "firm_letter.typ"                   // module accessed as firm_letter.x
+#import "firm_letter.typ" as fl
+#import "firm_letter.typ": *                // import all public names
 #include "boilerplate.typ"                  // splice content (not definitions)
 ```
 
@@ -490,7 +490,7 @@ Packages — *always pin a version*; unversioned imports are an error.
 
 ```typ
 #import "@preview/cetz:0.4.1": *
-#import "@local/firm-templates:0.1.0": contract, letter
+#import "@local/firm_templates:0.1.0": contract, letter
 ```
 
 A package can only read files inside its own directory. If a package needs a project resource (logo, seal), the user passes it loaded:
@@ -537,7 +537,7 @@ A template is a function that wraps the document. Apply via everything-show. Sta
 Application:
 
 ```typ
-#import "firm-letter.typ": firm_letter
+#import "firm_letter.typ": firm_letter
 
 #show: firm_letter.with(matter: "Acme v Beta")
 

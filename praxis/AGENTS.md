@@ -60,8 +60,11 @@ upcoming deadlines all come from onboard. Without it you are guessing.
 │   ├── todos/                   # Open standalone todos. claimed/ holds done.
 │   └── lawyer_profile.md        # Lawyer profile, jurisdiction, working style.
 │
-├── functions/                   # Small reusable typst snippets (#import these).
-├── templates/                   # Typst skeletons: letters, pleadings, opinions, contracts, memos, components.
+├── src/                         # Canonical Typst support library copied by setup/update.
+│   ├── types/                   # Soft type constructors and validators.
+│   └── constants/               # Typed default records.
+├── functions/                   # Legacy location. Migrate useful files into src/.
+├── templates/                   # Legacy location. Migrate useful files into src/.
 └── clients/
     └── <client_slug>/
         ├── profile.md
@@ -140,12 +143,22 @@ Producing typst output — drafts inside a matter, reusable functions, reusable
 templates — is routine file work. There are no commands for it; just
 conventions you follow.
 
-The foundation is `templates/components/style.typ`. This is the lawyer's
-**default template** — page setup, fonts, letterhead, signature block, and
-high-level helpers like `firm_letter`. Every document you draft should
-build on it (`#import "templates/components/style.typ": *` or similar). If
-this file doesn't exist yet, the lawyer is on a first run — you should be
-running `c_initial_setup` to design it together, not improvising drafts.
+All reusable Typst code now lives under `src/`. Top-level `functions/` and
+`templates/` are legacy locations kept so existing installs do not lose files
+on update. Do not create new Typst helpers or templates there. When you find
+useful existing files in those legacy folders, migrate them into `src/` and
+adapt them to the current house rules before using them.
+
+The foundation is `src/templates/components/style.typ`. This is the lawyer's
+default document template — page setup, fonts, letterhead, signature block, and
+high-level helpers like `firm_letter`. Every document you draft should build on
+it. If this file doesn't exist yet, the lawyer is on a first run — you should
+be running `c_initial_setup` to design it together, not improvising drafts.
+
+Before creating or editing anything in `src/types/`, read
+`agent_rules/docs/core/typst_soft_typesystem_and_house_rules_updated.typ`.
+That document defines the soft-type constructor pattern, naming rules,
+Tinymist documentation style, and boundary validation convention.
 
 ### Always work inside a focused matter
 
@@ -159,17 +172,17 @@ run `c_focus_matter` on the new matter — never carry stale context across.
 When the lawyer asks for something drafted (letter, motion, opinion, contract,
 memo):
 
-1. **Pick a template.** Either the lawyer specifies one ("use the demand
-   letter template") or you pick the closest match from `templates/<category>/`.
-   You already have ambient awareness of what's available from onboard. If
-   nothing fits, start from `templates/components/style.typ` or write fresh.
+1. **Pick or create a `src/` template/function.** Either the lawyer specifies
+   one or you pick the closest reusable module from `src/`. If the only useful
+   starting point is in legacy `functions/` or `templates/`, migrate it into
+   `src/` first and update it to the current Typst house rules.
 2. **Write to the matter root** as `NN_<slug>.typ`, where `NN` is the next
    sequence number, zero-padded to two digits. Find the next number by
    scanning existing `*.typ` files in the matter root. Slug from purpose:
    `letter_of_demand`, `answering_affidavit`, `opinion_prescription`.
-3. **Use `functions/` and `templates/components/`** for currency, dates,
-   citations, letterhead, signature, page setup. Don't reimplement what's
-   already there.
+3. **Use `src/`** for soft types, typed constants, currency, dates, citations,
+   letterhead, signature, page setup, reusable functions, and reusable
+   templates. Don't reimplement what's already there.
 4. **Preview in plain language**, not typst source. Read back the key
    sections ("here's the demand paragraph: …") so the lawyer can react
    without reading code.
@@ -188,8 +201,9 @@ snippet a lot":
 1. Identify the recurring snippet.
 2. Pick a slug — short, lowercase, descriptive: `currency_zar`, `case_citation`,
    `numbered_clauses`.
-3. Write `functions/<slug>.typ` with a one-line header comment explaining
-   what it does and how to import it.
+3. Write lawyer-specific reusable snippets under `src/functions/<slug>.typ`
+   with Tinymist-style documentation explaining what it does and how to import
+   it.
 4. Update existing documents that had the inline version to `#import` the
    new function.
 5. Confirm in plain language.
@@ -198,14 +212,14 @@ snippet a lot":
 
 When the lawyer says "save this as a template" / "make a template of XYZ":
 
-1. **Pick a category subdir** under `templates/`: `letters`, `pleadings`,
+1. **Pick a category subdir** under `src/templates/`: `letters`, `pleadings`,
    `opinions`, `contracts`, `memos`, `components`. Pick by purpose.
 2. **Sanitise first.** Edit the source to remove client names, opposing
    parties, case numbers, dates, privileged facts. Replace with descriptive
    placeholders or generic illustrative content. Keep structure, headings,
    formatting, reusable phrasing.
 3. **Confirm the sanitised version** with the lawyer before saving.
-4. Write to `templates/<category>/<slug>.typ`.
+4. Write to `src/templates/<category>/<slug>.typ`.
 5. If the template represents a "way of doing things worth remembering"
    (when to reach for it, edge cases, who it's for), suggest `c_create_memory`.
 

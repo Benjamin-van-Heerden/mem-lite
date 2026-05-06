@@ -120,6 +120,76 @@ Running the setup script with `--update` will:
 - Update core instructions in AGENTS.md while preserving your custom content (everything after `</core_instructions>`)
 - Create any new directories added in newer versions
 
+## Praxis (typst-first legal practice variant)
+
+A separate but related system for **solo legal practitioners** ships as a
+subdirectory of this repo. Praxis is built around the same agent-driven,
+file-based philosophy as mem lite, but the primitives are different:
+clients, matters, deadlines, communications, records, and typst document
+templates instead of specs/tasks. The agent is the entire user interface —
+the lawyer never sees the filesystem.
+
+Praxis is published from the same repo (under `praxis/`) so the install
+one-liner just points at the praxis subdir of `bash_setup.sh`.
+
+### Prerequisites
+
+- **Git** (same as mem lite — provides `bash` on Windows).
+- **Python 3.12+** on `PATH` as `python`. The agent invokes runtime
+  helpers as `python agent_rules/scripts/<name>.py ...`. On Windows, the
+  python.org installer's "Add to PATH" option is sufficient. On macOS /
+  Linux, install Python 3.12+ via your package manager and confirm
+  `python --version` works.
+- **Typst.** Praxis assumes `typst` is on `PATH` for compiling documents.
+  Install from <https://github.com/typst/typst>.
+
+### Setup
+
+#### macOS / Linux
+
+```bash
+# Init
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/praxis/bash_setup.sh)
+
+# Update
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/praxis/bash_setup.sh) --update
+
+# Restore canonical skeletons (overwrites any local edits to agent_rules/skeletons/)
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/praxis/bash_setup.sh) --reset-skeletons
+```
+
+#### Windows
+
+Run from **Git Bash** (installed with Git for Windows):
+
+```bash
+# Init
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/praxis/bash_setup.sh)
+
+# Update
+bash <(curl -sL https://raw.githubusercontent.com/Benjamin-van-Heerden/mem-lite/main/praxis/bash_setup.sh) --update
+```
+
+> **Note:** install/update only run from bash. The day-to-day commands
+> the agent dispatches are Python scripts, not bash — so the agent runs
+> them on Windows without needing a working bash shell.
+
+### First session
+
+Open the project in your AI coding tool of choice and say:
+
+> "Get onboarded" or "Let's get to work"
+
+If it's a fresh install, the agent will detect the first-run state
+(unfilled `lawyer_profile.md`, missing default template) and walk you
+through a guided setup: a brief profile interview, a default document
+template designed and test-compiled with you, and an optional pass at
+filling in jurisdictional context.
+
+After that, you talk to the agent in plain language ("new client", "Tom
+called this morning", "filing is due Friday", "draft a letter to…") and
+it translates into the right action.
+
 ## License
 
 Copyright (c) 2026 Benjamin van Heerden

@@ -12,9 +12,10 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import NoReturn
 
 
-def die(msg: str) -> "NoReturn":
+def die(msg: str) -> NoReturn:
     print(f"praxis: {msg}", file=sys.stderr)
     sys.exit(1)
 
@@ -95,6 +96,7 @@ def frontmatter_set(file: Path | str, key: str, value: str) -> None:
     parsed = _frontmatter_lines(file)
     if parsed is None:
         die(f"key '{key}' not present in frontmatter of {file}")
+        return
     lines, fm_start, fm_end = parsed
     pat = re.compile(rf"^{re.escape(key)}:")
     for i in range(fm_start + 1, fm_end):

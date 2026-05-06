@@ -203,7 +203,7 @@ Compound interest: $A = P(1 + r)^n$.
 == The hash (`#`) is your one trick
 
 In markup, `#` switches into code mode for one expression. That expression can
-be a function call (`#image("logo.png")`), a variable name (`#client_name`), an
+be a function call (`#image("logo.png")`), a variable name (`#client-name`), an
 arithmetic expression (`#(2 + 2)`), a method call (`#"Hello".lower()`), and so
 on. After the expression ends, you are back in markup.
 
@@ -407,12 +407,12 @@ the surrounding block (or the rest of the file if there is no surrounding
 block).
 
 ```typ
-#let client_name = "Acme Industries (Pty) Ltd"
-#let purchase_price = 1_500_000
-#let contract_date = datetime(year: 2026, month: 4, day: 15)
+#let client-name = "Acme Industries (Pty) Ltd"
+#let purchase-price = 1_500_000
+#let contract-date = datetime(year: 2026, month: 4, day: 15)
 
-The Buyer is #client_name.
-The Purchase Price is R#purchase_price.
+The Buyer is #client-name.
+The Purchase Price is R#purchase-price.
 ```
 
 You can store anything in a variable: a string, a number, a length, a colour,
@@ -523,8 +523,8 @@ You can pull apart arrays and dictionaries on the left side of a `let`:
 #let (buyer, seller) = parties      // pulls those two keys
 
 // Destructuring also works in function parameter lists:
-#let format-party((name, role)) = [#name (#role)]
-#format-party(("Acme Industries", "Buyer"))
+#let format_party((name, role)) = [#name (#role)]
+#format_party(("Acme Industries", "Buyer"))
 ```
 
 == Data types you will actually use
@@ -584,12 +584,12 @@ branch (or `none` if no branch matched and there is no `else`).
 A common pattern: conditionally include some content based on a flag.
 
 ```typ
-#let include_appendix = true
+#let include-appendix = true
 
 = Conclusion
 ...
 
-#if include_appendix [
+#if include-appendix [
   = Appendix A — Schedule of payments
   ...
 ]
@@ -671,19 +671,19 @@ in only what you need.
 == Importing from another file
 
 ```typ
-// In firm-template.typ:
-#let firm_name = "Doe & Doe Inc."
+// In firm_template.typ:
+#let firm-name = "Doe & Doe Inc."
 #let letter(addressee, body) = [
-  #firm_name \
+  #firm-name \
   \
   Dear #addressee, \
   #body
 ]
 
 // In your document:
-#import "firm-template.typ": firm_name, letter
+#import "firm_template.typ": firm-name, letter
 
-// Now `firm_name` and `letter` are in scope.
+// Now `firm-name` and `letter` are in scope.
 #letter("Mr Tau", [Please find enclosed ...])
 ```
 
@@ -691,15 +691,15 @@ Variants:
 
 ```typ
 // Import everything from the file as a module under one name:
-#import "firm-template.typ"
-#firm-template.firm_name        // dot access
+#import "firm_template.typ"
+#firm_template.firm-name        // dot access
 
-// Import everything by name (uses the filename, dash-separated):
-#import "firm-template.typ" as ft
-#ft.firm_name
+// Import everything by name (uses the filename, snake_case):
+#import "firm_template.typ" as ft
+#ft.firm-name
 
 // Import every public name (rarely the cleanest choice, but available):
-#import "firm-template.typ": *
+#import "firm_template.typ": *
 ```
 
 `#include "other.typ"` is the other option: it inlines the *content* of the
@@ -911,7 +911,7 @@ to pre-supply named arguments, then pass the resulting partially-applied
 function to `#show:`.
 
 ```typ
-#import "firm-letter.typ": firm_letter
+#import "firm_letter.typ": firm_letter
 
 #show: firm_letter.with(
   matter: "Acme v. Beta",
@@ -1315,7 +1315,7 @@ break, and reserves space for itself within the surrounding text flow.
 ])
 
 // A box — sits inline:
-This signatory: #box(stroke: 0.5pt, inset: 4pt, [#sig_name]) signed today.
+This signatory: #box(stroke: 0.5pt, inset: 4pt, [#sig-name]) signed today.
 ```
 
 Both accept `fill`, `stroke`, `inset` (interior padding), `outset` (exterior
@@ -2001,8 +2001,8 @@ and other "the document looking at itself" patterns.
 // Header that shows the title of the most recent level-1 heading:
 #set page(header: context {
   let headings = query(heading.where(level: 1))
-  let current_page = here().page()
-  let current = headings.find(h => h.location().page() <= current_page)
+  let current-page = here().page()
+  let current = headings.find(h => h.location().page() <= current-page)
   if current != none [
     _#current.body_  #h(1fr)  Doe & Doe Inc.
   ]
@@ -2108,7 +2108,7 @@ show rule.
 For real use, put the template in its own file:
 
 ```typ
-// firm-letter.typ
+// firm_letter.typ
 #let firm_letter(
   matter: "",
   date: datetime.today(),
@@ -2119,7 +2119,7 @@ For real use, put the template in its own file:
 }
 
 // In the document file:
-#import "firm-letter.typ": firm_letter
+#import "firm_letter.typ": firm_letter
 
 #show: firm_letter.with(matter: "Acme v. Beta")
 
@@ -2132,19 +2132,19 @@ When you have a template — or several — that you want to use across multiple
 projects without copying files, publish it as a local package. The mechanics
 differ slightly between operating systems, but the principle is the same:
 
-1. Decide on a package name and version, e.g. `firm-templates:0.1.0`.
+1. Decide on a package name and version, e.g. `firm_templates:0.1.0`.
 2. Create a directory under your local data directory at the path
-   `typst/packages/local/firm-templates/0.1.0/`.
+   `typst/packages/local/firm_templates/0.1.0/`.
 3. Inside that directory, put a `typst.toml` manifest describing the package
    and a `lib.typ` containing your `let` definitions.
-4. Import in any document with `#import "@local/firm-templates:0.1.0":
+4. Import in any document with `#import "@local/firm_templates:0.1.0":
    firm_letter`.
 
 Sample `typst.toml`:
 
 ```toml
 [package]
-name = "firm-templates"
+name = "firm_templates"
 version = "0.1.0"
 entrypoint = "lib.typ"
 authors = ["Doe & Doe Inc."]
@@ -2184,7 +2184,7 @@ two-author conference paper template is a good model.
 ```typ
 #let contract(
   parties: (),
-  effective_date: datetime.today(),
+  effective-date: datetime.today(),
   doc,
 ) = {
   set page(...)
@@ -2198,7 +2198,7 @@ two-author conference paper template is a good model.
     ..parties.map(p => [
       *#p.name* \
       #p.role \
-      Registration: #p.reg_no \
+      Registration: #p.reg-no \
       Address: #p.address
     ])
   )
@@ -2503,7 +2503,7 @@ The Buyer shall pay the Purchase Price as set out in @price.
   #v(1fr)
 
   #align(center)[
-    #image("firm-logo.svg", width: 6cm)
+    #image("firm_logo.svg", width: 6cm)
 
     #v(2cm)
 
@@ -2730,7 +2730,7 @@ docs, the official docs are right.
 // Closing notes for any agent reading this file:
 //
 // - Treat this file as read-only. If you need to extend the Praxis system of
-//   work, add new files (firm-letter.typ, contract-template.typ, etc.) and
+//   work, add new files (firm_letter.typ, contract_template.typ, etc.) and
 //   reference them by import.
 // - Pin every package version you import. Document why.
 // - Comment your code. Future readers — including yourself — will thank you.

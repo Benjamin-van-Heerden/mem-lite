@@ -44,19 +44,23 @@ lawyer; just internalise the context.
 10. **Open todos.** Read every file in `agent_rules/todos/` (excluding
     `claimed/`).
 11. **Available typst building blocks.** List filenames only (do not read
-    contents) of `functions/` and the `templates/` subdirs. Use your Glob
-    tool with patterns `functions/**/*.typ` and `templates/**/*.typ`.
+    contents) of `src/` and its subdirs. Use your Glob tool with pattern
+    `src/**/*.typ`.
 
     This is for ambient awareness — when the lawyer later asks for something
-    drafted, you should know what reusable templates and functions already
-    exist without having to re-survey the tree. Read the contents on demand
-    when actually drafting.
+    drafted, you should know what reusable types, constants, templates, and
+    functions already exist without having to re-survey the tree. Read the
+    contents on demand when actually drafting.
 
-12. **First-run detection.** This is a fresh praxis install when **both** of
+12. **Local git snapshot.** Run `python agent_rules/scripts/git_snapshot.py`.
+    This stages all non-ignored files and creates a local commit if anything
+    changed. It does not push.
+
+13. **First-run detection.** This is a fresh praxis install when **both** of
     these are true:
 
     - The `lawyer_profile.md` placeholder flag from step 1 is set.
-    - `templates/components/style.typ` does **not** exist.
+    - `src/templates/components/style.typ` does **not** exist.
 
     If both are true, set a `first_run` flag and skip the normal briefing
     (see *If `first_run` flag is set* below).

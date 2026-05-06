@@ -3,7 +3,7 @@
 A guided walk-through for a fresh praxis install. Three phases:
 
 1. **Lawyer profile** — interview the lawyer, populate `lawyer_profile.md`.
-2. **Default document template** — design and build `templates/components/style.typ`,
+2. **Default document template** — design and build `src/templates/components/style.typ`,
    then compile a sample document so the lawyer can see what their drafts will
    look like.
 3. **Legal context** (optional) — offer to populate `agent_rules/docs/core/legal_context.typ`.
@@ -19,7 +19,7 @@ Run this when **all** of these are true:
 
 - `agent_rules/lawyer_profile.md` still contains the literal string
   `PLACEHOLDER — NOT YET FILLED IN`.
-- `templates/components/style.typ` does not exist.
+- `src/templates/components/style.typ` does not exist.
 
 c_onboard detects this combination and hands control to this command.
 You may also be invoked directly if the lawyer says something like
@@ -96,7 +96,7 @@ Read it back briefly — one or two lines — and ask if anything's wrong.
 
 ## Phase 2 — Default document template
 
-Goal: `templates/components/style.typ` exists and produces a good-looking
+Goal: `src/templates/components/style.typ` exists and produces a good-looking
 sample document.
 
 Most of what's needed for the template you already learned in Phase 1
@@ -104,7 +104,7 @@ Most of what's needed for the template you already learned in Phase 1
 
 - **Logo.** "Do you have a firm logo as an image file? If so, save it as
   `logo.png` (or `.svg`/`.jpg`) and put it in
-  `templates/components/assets/` — let me know when it's there. Or skip and
+  `src/templates/components/assets/` — let me know when it's there. Or skip and
   we'll go text-only for now." If the lawyer drops a logo, accept whatever
   they give you and reference it by the path they used. If they have no
   logo, build the letterhead from text alone.
@@ -112,7 +112,7 @@ Most of what's needed for the template you already learned in Phase 1
   Default font (have a sensible suggestion ready — EB Garamond or similar
   serif for a traditional look; ask).
 
-### Build `templates/components/style.typ`
+### Build `src/templates/components/style.typ`
 
 This file is the base every document will import from. It should expose:
 
@@ -127,8 +127,8 @@ This file is the base every document will import from. It should expose:
 Don't be overly prescriptive in *how* you structure these — the goal is a
 working, edit-friendly template the lawyer can grow into. Reference the
 patterns in `agent_rules/docs/core/typst_basic_reference.typ` and
-`typst_legal_cookbook.typ` if you need a refresher on how to express any
-of this in typst.
+`agent_rules/docs/typst_detailed_reference.typ` if you need a refresher on
+how to express any of this in typst.
 
 Two important conventions:
 
@@ -136,8 +136,8 @@ Two important conventions:
   honour what it says. If not, default to ISO dates and ask the lawyer for
   any preferences before writing format-sensitive helpers.
 - **Don't hardcode jurisdictional assumptions** into the template. Defer to
-  helpers in `functions/` (which the lawyer can build up over time) for
-  things like currency formatting and citation rendering.
+  lawyer-specific snippets in `src/functions/` for things like currency
+  formatting and citation rendering.
 
 ### Test-compile a sample
 
@@ -213,7 +213,7 @@ When the setup is complete (Phase 1 always; Phase 2 always; Phase 3 if
 they did it), confirm in plain language:
 
 > "You're set up. `lawyer_profile.md` is filled in. Your default template
-> lives at `templates/components/style.typ` — every document we draft from
+> lives at `src/templates/components/style.typ` — every document we draft from
 > now on will use it. [If Phase 3:] `legal_context.typ` is filled in too.
 >
 > From here, the normal flow applies: tell me about a new client and I'll
