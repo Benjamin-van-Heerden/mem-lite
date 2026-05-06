@@ -1,18 +1,22 @@
-#import "assert.typ": assert_kind
+#import "assert.typ": assert_required
 
 /// Construct a shareholder record for company ownership metadata.
 ///
 /// Provide either `number-of-shares` or `percentage-ownership`, not both.
 ///
-/// - name (str): Shareholder name.
+/// - name (str): [required] Shareholder name.
 /// - number-of-shares (int, none): Number of shares held.
 /// - percentage-ownership (int, float, none): Percentage ownership.
 /// -> dictionary
 #let ShareHolder(
-  name,
+  name: none,
   number-of-shares: none,
   percentage-ownership: none,
 ) = {
+  // type checks
+  assert_required(name, "name", str);
+  //
+
   if number-of-shares == none and percentage-ownership == none {
     panic("ShareHolder requires number-of-shares or percentage-ownership")
   }
@@ -27,9 +31,3 @@
     percentage-ownership: percentage-ownership,
   )
 }
-
-/// Validate a `ShareHolder(...)` value.
-///
-/// - value (dictionary): Value to validate.
-/// -> dictionary
-#let ShareHolder_assert(value) = assert_kind(value, "ShareHolder")

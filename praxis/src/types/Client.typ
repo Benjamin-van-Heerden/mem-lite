@@ -1,30 +1,30 @@
-#import "assert.typ": assert_kind
+#import "assert.typ": assert_required
 
 /// Construct a client record for invoices and business documents.
 ///
-/// - name (str): Legal or trading name of the client.
-/// - registration (str, none): Company registration number.
+/// - name (str): [required] Legal or trading name of the client.
 /// - address (str, none): Billing or registered address.
 /// - email (str, none): Billing contact email.
+/// - cell (str, none): Billing contact phone number.
 /// - details (array): Additional rows to render under standard client fields. Each item should be `(label: str, value: any)`.
 /// -> dictionary
 #let Client(
-  name,
-  registration: none,
+  name: none,
   address: none,
   email: none,
+  cell: none,
   details: (),
-) = (
-  kind: "Client",
-  name: name,
-  registration: registration,
-  address: address,
-  email: email,
-  details: details,
-)
+) = {
+  // type checks
+  assert_required(name, "name", str);
+  //
 
-/// Validate a `Client(...)` value.
-///
-/// - value (dictionary): Value to validate.
-/// -> dictionary
-#let Client_assert(value) = assert_kind(value, "Client")
+  (
+    kind: "Client",
+    name: name,
+    address: address,
+    email: email,
+    cell: cell,
+    details: details,
+  )
+}

@@ -1,53 +1,78 @@
-#import "assert.typ": assert_kind
+#import "assert.typ": assert_each, assert_required, assert_type
 
 /// Construct a money value from minor units.
 ///
-/// `cents` keeps arithmetic predictable. Use `display` when a specific
-/// presentation is required, for example `"ZAR 14 000"`.
+/// `cents` keeps arithmetic predictable. Formatting is handled by
+/// `Money_display`.
 ///
-/// - cents (int): Amount in minor units.
+/// - cents (int): [required] Amount in minor units.
 /// - currency (str): Currency label.
-/// - display (str, none): Optional display value. If omitted, a simple decimal display is generated.
 /// -> dictionary
 #let Money(
-  cents,
+  cents: none,
   currency: "ZAR",
-  display: none,
-) = (
-  kind: "Money",
-  cents: cents,
-  currency: currency,
-  display: display,
-)
+) = {
+  // type checks
+  assert_required(cents, "cents", int);
+  assert_required(currency, "currency", str);
+  //
 
-/// Validate a `Money(...)` value.
+  (
+    kind: "Money",
+    cents: cents,
+    currency: currency,
+  )
+}
+
+/// Add thousands separators to a positive whole-number string.
 ///
-/// - value (dictionary): Value to validate.
-/// -> dictionary
-#let Money_assert(value) = assert_kind(value, "Money")
+/// - digits (str): Whole-number digits.
+/// -> str
+#let _group_digits(digits) = {
+  let chars = digits.clusters()
+  let first-len = calc.rem(chars.len(), 3)
+  let first-len = if first-len == 0 { 3 } else { first-len }
+
+  if chars.len() <= 3 {
+    digits
+  } else {
+    let groups = (
+      chars.slice(0, first-len).join(""),
+    ) + chars
+      .slice(first-len)
+      .chunks(3)
+      .map(chunk => chunk.join(""))
+
+    groups.join(",")
+  }
+}
 
 /// Format a `Money(...)` value for display.
 ///
 /// - money (dictionary): Money value to format.
 /// -> str
 #let Money_display(money) = {
-  let money = Money_assert(money)
-  if money.display != none {
-    money.display
+  // type checks
+  assert_required(money, "money", "Money");
+  //
+
+  let sign = if money.cents < 0 { "-" } else { "" }
+  let abs-cents = calc.abs(money.cents)
+  let whole = calc.quo(abs-cents, 100)
+  let cents = calc.rem(abs-cents, 100)
+  let whole-text = _group_digits(str(whole))
+
+  if cents == 0 {
+    sign + money.currency + " " + whole-text
   } else {
-    let sign = if money.cents < 0 { "-" } else { "" }
-    let abs-cents = calc.abs(money.cents)
-    let whole = calc.quo(abs-cents, 100)
-    let cents = calc.rem(abs-cents, 100)
     let cents-text = if cents < 10 { "0" + str(cents) } else { str(cents) }
-    sign + money.currency + " " + str(whole) + "." + cents-text
+    sign + money.currency + " " + whole-text + "." + cents-text
   }
 }
 
 /// Sum multiple `Money(...)` values.
 ///
-/// All values must use the same currency. The returned value omits `display`
-/// so presentation is generated from the summed cents.
+/// All values must use the same currency.
 ///
 /// - monies (array): Money values to add.
 /// -> dictionary
@@ -56,7 +81,10 @@
     panic("Money_sum requires at least one Money value")
   }
 
-  let monies = monies.map(Money_assert)
+  // type checks
+  assert_each(monies, "monies", "Money");
+  //
+
   let currency = monies.first().currency
   let cents = monies.fold(0, (total, money) => {
     if money.currency != currency {
@@ -65,5 +93,27 @@
     total + money.cents
   })
 
-  Money(cents, currency: currency)
+  (
+    kind: "Money",
+    cents: cents,
+    currency: currency,
+  )
+}
+
+/// Multiply a `Money(...)` value by a numeric factor.
+///
+/// - money (dictionary): Money value to multiply.
+/// - factor (int, float): Multiplier.
+/// -> dictionary
+#let Money_multiply(money, factor) = {
+  // type checks
+  assert_required(money, "money", "Money");
+  assert_required(factor, "factor", (int, float));
+  //
+
+  (
+    kind: "Money",
+    cents: money.cents * factor,
+    currency: money.currency,
+  )
 }
